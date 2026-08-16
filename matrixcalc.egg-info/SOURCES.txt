@@ -1,8 +1,0 @@
-pyproject.toml
-matrixcalc/__init__.py
-matrixcalc/matrix.py
-matrixcalc.egg-info/PKG-INFO
-matrixcalc.egg-info/SOURCES.txt
-matrixcalc.egg-info/dependency_links.txt
-matrixcalc.egg-info/top_level.txt
-tests/test_matrix.py
