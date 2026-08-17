@@ -555,3 +555,32 @@ def test_matrix_zeros_requires_positive_integer_dimensions():
 
     with pytest.raises(ValueError):
         Matrix.zeros(2, -3)
+
+def test_matrix_trace():
+    A = Matrix([
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+    ])
+
+    assert A.trace == 15
+
+
+def test_matrix_trace_with_negative_values():
+    A = Matrix([
+        [-1, 2],
+        [3, -4]
+    ])
+
+    assert A.trace == -5
+
+
+def test_matrix_trace_requires_square_matrix():
+    A = Matrix([
+        [1, 2, 3],
+        [4, 5, 6]
+    ])
+
+    with pytest.raises(ValueError):
+        A.trace
+

@@ -64,6 +64,7 @@ class Matrix:
         return (self.rows, self.cols)
 
     @property
+    # transpose property
     def T(self):
         data = [
             [self._data[row][col] for row in range(self.rows)]
@@ -71,6 +72,13 @@ class Matrix:
         ]
 
         return Matrix(data)
+
+    @property
+    def trace(self):
+        if self.cols != self.rows:
+            raise ValueError("Trace not defined for non-square matrices")	
+
+        return sum(self._data[k][k] for k in range(self.rows))
 
     # Dunder
     def __getitem__(self, index):
