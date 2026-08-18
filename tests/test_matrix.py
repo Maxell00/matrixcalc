@@ -584,3 +584,15 @@ def test_matrix_trace_requires_square_matrix():
     with pytest.raises(ValueError):
         A.trace
 
+def test_to_list():
+    matrix = Matrix([[1, 2], [3, 4]])
+
+    assert matrix.to_list() == [[1, 2], [3, 4]]
+
+def test_to_list_returns_copy():
+    matrix = Matrix([[1, 2], [3, 4]])
+
+    data = matrix.to_list()
+    data[0][0] = 99
+
+    assert matrix == Matrix([[1, 2], [3, 4]])

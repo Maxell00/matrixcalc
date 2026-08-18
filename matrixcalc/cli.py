@@ -85,7 +85,7 @@ def main():
                     print(result)
                     break
             # Command is invalid
-            else
+            else:
                 print("No valid command")
 
 if __name__ == "__main__":
