@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 class Workspace:
     def __init__(self, name="untitled"):
         self.name = name
@@ -15,13 +18,21 @@ class Workspace:
     def contains(self, name):
         return name in self._variables
 
-    def save(self):
-        PLACEHOLDER
+    def save(self, directory):
+        path = Path(directory) / f"{self.name}.json"
 
-    def save_as(self, name):
-        PLACEHOLDER
+        data = {
+            name: matrix.to_list()
+            for name, matrix in self._variables.items()
+        }
 
-    @classmethod
-    def load(cls, filename):
-        PLACEHOLDER
+        with path.open("w", encoding="utf-8") as file:
+            json.dump(data, file)
+
+    #def save_as(self, name):
+        #PLACEHOLDER
+
+    #@classmethod
+    #def load(cls, filename):
+        #PLACEHOLDER
 
