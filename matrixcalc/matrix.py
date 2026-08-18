@@ -21,65 +21,6 @@ class Matrix:
         # NOTE: May affect symbolic logic implementation
         self._data = [row[:] for row in data]
 
-    # Class Methods
-    @classmethod
-    def identity(cls, n):
-        data = [
-            [
-                1 if row == col else 0
-                for col in range(n)
-            ]
-            for row in range(n)
-        ]
-
-        return Matrix(data)
-
-    @classmethod
-    def zeros(cls, rows, cols):
-
-        if not isinstance(rows, int) or not isinstance(cols, int):
-            raise TypeError("Dimensions must be integers")
-
-        if rows <= 0 or cols <=0:
-            raise ValueError("Dimensions must be positive")
-
-        data = [
-            [0 for col in range(cols)]
-            for row in range(rows)
-        ]
-
-        return Matrix(data)
-
-    # Properties
-    @property
-    def rows(self):
-        return len(self._data)
-
-    @property
-    def cols(self):
-        return len(self._data[0])
-
-    @property
-    def shape(self):
-        return (self.rows, self.cols)
-
-    @property
-    # transpose property
-    def T(self):
-        data = [
-            [self._data[row][col] for row in range(self.rows)]
-            for col in range(self.cols)
-        ]
-
-        return Matrix(data)
-
-    @property
-    def trace(self):
-        if self.cols != self.rows:
-            raise ValueError("Trace not defined for non-square matrices")	
-
-        return sum(self._data[k][k] for k in range(self.rows))
-
     # Dunder
     def __getitem__(self, index):
         row, col = index
@@ -190,3 +131,66 @@ class Matrix:
 
     def __neg__(self):
         return -1 * self
+
+    # Properties
+    @property
+    def rows(self):
+        return len(self._data)
+
+    @property
+    def cols(self):
+        return len(self._data[0])
+
+    @property
+    def shape(self):
+        return (self.rows, self.cols)
+
+    @property
+    # transpose property
+    def T(self):
+        data = [
+            [self._data[row][col] for row in range(self.rows)]
+            for col in range(self.cols)
+        ]
+
+        return Matrix(data)
+
+    @property
+    def trace(self):
+        if self.cols != self.rows:
+            raise ValueError("Trace not defined for non-square matrices")	
+
+        return sum(self._data[k][k] for k in range(self.rows))
+
+    # Class Methods
+    @classmethod
+    def identity(cls, n):
+        data = [
+            [
+                1 if row == col else 0
+                for col in range(n)
+            ]
+            for row in range(n)
+        ]
+
+        return Matrix(data)
+
+    @classmethod
+    def zeros(cls, rows, cols):
+
+        if not isinstance(rows, int) or not isinstance(cols, int):
+            raise TypeError("Dimensions must be integers")
+
+        if rows <= 0 or cols <=0:
+            raise ValueError("Dimensions must be positive")
+
+        data = [
+            [0 for col in range(cols)]
+            for row in range(rows)
+        ]
+
+        return Matrix(data)
+
+    # Methods
+    def to_list(self):
+        return [row[:] for row in self._data]
