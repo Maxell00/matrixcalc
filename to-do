@@ -1,0 +1,41 @@
+IMPLEMENTATION
+
+- cli save load
+- cli >> save output to value
+- cli multiple commands in sequence (use | perhaps)
+- cli list (list labels AND list label + value)
+
+- cli autosave / autoload
+    - consider flag implementation
+- cli file management? is this necessary?
+
+- cli set cell value (implemented in workspace already)
+
+- matrix
+
+LATER
+
+- start gui
+
+- determinant logic
+
+TESTING
+
+- save/load in live cli
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
