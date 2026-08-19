@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from matrixcalc.matrix import Matrix
 
 class Workspace:
     def __init__(self, name="untitled"):
@@ -18,21 +19,35 @@ class Workspace:
     def contains(self, name):
         return name in self._variables
 
-    def save(self, directory):
-        path = Path(directory) / f"{self.name}.json"
+    def save(self, directory, *, name=None):
+        if name == None:
+            name = self.name
+
+        path = Path(directory) / f"{name}.json"
 
         data = {
-            name: matrix.to_list()
-            for name, matrix in self._variables.items()
+            label: matrix.to_list()
+            for label, matrix in self._variables.items()
         }
 
         with path.open("w", encoding="utf-8") as file:
             json.dump(data, file)
 
-    #def save_as(self, name):
-        #PLACEHOLDER
+    def save_as(self, directory, name):
+        self.save(directory, name=name)
+        self.name = name
 
-    #@classmethod
-    #def load(cls, filename):
-        #PLACEHOLDER
+    @classmethod
+    def load(cls, name, directory):
+        path = Path(directory) / f"{name}.json"
+        
+        with path.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        workspace = cls(name)
+
+        for label, matrix_data in data.items():
+            workspace.set(label, Matrix(matrix_data))
+
+        return workspace
 
