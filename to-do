@@ -1,6 +1,8 @@
 --- IMPLEMENTATION ---
 
 - cli autosave / autoload
+    - autoload functionality with .last workspace file
+	- populate save load exit with relevant func calls
     - consider flag implementation
 	- --no-autoload / -nal
 	- --no-autosave / -nas
@@ -11,7 +13,8 @@
 
 - cli help command
 
-- cli load warn on potential data loss
+- cli load/(quit?) warn on potential data loss
+    - untitled exception
 
 - cli set cell value (implemented in workspace already)
 
