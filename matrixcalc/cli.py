@@ -1,6 +1,13 @@
 import ast
+from pathlib import Path
 from matrixcalc.matrix import Matrix
 from matrixcalc.workspace import Workspace
+
+# TODO: Add autosave-load functionality, handle on-off with flag, set related constant (if necessary)
+
+# Sets savefile path
+WORKSPACE_DIR = Path.home() / ".matrixcalc" / "workspaces"
+WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
 OPERATIONS = {
     "+": lambda a, b: a + b,
@@ -50,13 +57,46 @@ def main():
 
     while True:
         command = input("> ")
-
+        
+        # Handle named commands
         if command in ("quit", "exit", "q"):
             print("Goodbye!")
             break
 
+        elif command == "name":
+            print(workspace.name)
+
+        elif command == "save":
+            if workspace.name == "untitled":
+                name = input("Save as: ").strip()
+                workspace.save_as(WORKSPACE_DIR, name)
+            else:
+                workspace.save(WORKSPACE_DIR)
+
+        # Save as after prompt
+        elif command == "save as":
+            name = input("Save as: ").strip()
+            # #debug
+            # breakpoint()
+            print(f"saving as {name}.json...")
+            workspace.save_as(WORKSPACE_DIR, name)
+
+        # Save as immediately
+        elif command.startswith("save as "):
+            name = command[len("save as "):].strip()
+            workspace.save_as(WORKSPACE_DIR, name)
+
+        elif command.startswith("load "):
+            name = command[len("load "):].strip()
+            # TODO Prevent data loss by checking diff since save
+            workspace = workspace.load(WORKSPACE_DIR, name)
+
+        elif command.startswith("set name "):
+            name = command[len("set name "):].strip()
+            workspace.rename(name)
+
         # Command is an assignment
-        if "=" in command:
+        elif "=" in command:
             name, value = parse_operation("=", command)
             # Long matrix syntax
             if value[0] == "[":

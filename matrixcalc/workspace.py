@@ -7,6 +7,10 @@ class Workspace:
         self.name = name
         self._variables = {}
 
+    def rename(self, name):
+        # TODO add name validation
+        self.name = name
+
     def set(self, name, value):
         self._variables[name] = value
 
@@ -38,7 +42,7 @@ class Workspace:
         self.name = name
 
     @classmethod
-    def load(cls, name, directory):
+    def load(cls, directory, name):
         path = Path(directory) / f"{name}.json"
         
         with path.open("r", encoding="utf-8") as file:

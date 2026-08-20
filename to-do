@@ -1,27 +1,35 @@
-IMPLEMENTATION
+--- IMPLEMENTATION ---
 
-- cli save load
+! cli list (list labels AND list label + value)
+
+- cli add feedback with saving, loading, etc
+
 - cli >> save output to value
 - cli multiple commands in sequence (use | perhaps)
-- cli list (list labels AND list label + value)
 
 - cli autosave / autoload
     - consider flag implementation
 - cli file management? is this necessary?
+    - tui file load?
 
 - cli set cell value (implemented in workspace already)
 
-- matrix
+x cli save load
 
-LATER
+--- DEBUG ---
+
+- add validation to various user inputs
+    - savename loadname setname
+    - matrix variable name A B C
+
+--- LATER --- 
 
 - start gui
-
 - determinant logic
 
-TESTING
+--- TESTING --- 
 
-- save/load in live cli
+x save/load in live cli
 
 
 
