@@ -1,19 +1,23 @@
 --- IMPLEMENTATION ---
 
-! cli list (list labels AND list label + value)
-
-- cli add feedback with saving, loading, etc
+- cli autosave / autoload
+    - consider flag implementation
+	- --no-autoload / -nal
+	- --no-autosave / -nas
+	- --new (same as nal?)
 
 - cli >> save output to value
 - cli multiple commands in sequence (use | perhaps)
 
-- cli autosave / autoload
-    - consider flag implementation
-- cli file management? is this necessary?
-    - tui file load?
+- cli help command
+
+- cli load warn on potential data loss
 
 - cli set cell value (implemented in workspace already)
 
+x cli list (list labels AND list label + value)
+x cli list loadable files (ws)
+x cli add feedback with saving, loading, etc
 x cli save load
 
 --- DEBUG ---

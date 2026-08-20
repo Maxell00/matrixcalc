@@ -9,6 +9,8 @@ from matrixcalc.workspace import Workspace
 WORKSPACE_DIR = Path.home() / ".matrixcalc" / "workspaces"
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
+LAST_WORKSPACE = WORKSPACE_DIR / ".last_workspace"
+
 OPERATIONS = {
     "+": lambda a, b: a + b,
     "-": lambda a, b: a - b,
@@ -52,8 +54,24 @@ def resolve_operand(operand, workspace):
 
     return parse_number(operand)
 
+def update_last_workspace(workspace):
+    LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
+
 def main():
-    workspace = Workspace()
+    active_workspace = Workspace()
+
+    # Auto-load
+    # TODO Add option to disable with flag
+    if LAST_WORKSPACE.is_file():
+        name = LAST_WORKSPACE.read_text(encoding="utf-8").strip()
+        try:
+            print(f"Loading {name}.json... ", end="")
+            active_workspace = active_workspace.load(WORKSPACE_DIR, name)
+            print("Done.")
+        except:
+            print("\nAutoload failed.")
+    else:
+        print("Autoload failed.")
 
     while True:
         command = input("> ")
@@ -64,42 +82,42 @@ def main():
             break
 
         elif command == "name":
-            print(workspace.name)
+            print(active_workspace.name)
 
         elif command == "save":
-            if workspace.name == "untitled":
+            if active_workspace.name == "untitled":
                 name = input("Save as: ").strip()
                 # Validation?
-                print(f"Saving as {name}.json...", end="")
-                workspace.save_as(WORKSPACE_DIR, name)
+                print(f"Saving as {name}.json... ", end="")
+                active_workspace.save_as(WORKSPACE_DIR, name)
                 print("Done.")
             else:
-                print(f"Saving {name}.json...", end="")
-                workspace.save(WORKSPACE_DIR)
+                print(f"Saving {active_workspace.name}.json... ", end="")
+                active_workspace.save(WORKSPACE_DIR)
                 print("Done")
 
         # Save as after prompt
         elif command == "save as":
             name = input("Save as: ").strip()
             # Validate here or workspace level?
-            print(f"Saving as {name}.json...", end="")
-            workspace.save_as(WORKSPACE_DIR, name)
+            print(f"Saving as {name}.json... ", end="")
+            active_workspace.save_as(WORKSPACE_DIR, name)
             print("Done.")
 
         # Save as immediately
         elif command.startswith("save as "):
             name = command[len("save as "):].strip()
             # Validate here or workspace level?
-            print(f"Saving as {name}.json...", end="")
-            workspace.save_as(WORKSPACE_DIR, name)
+            print(f"Saving as {name}.json... ", end="")
+            active_workspace.save_as(WORKSPACE_DIR, name)
             print("Done.")
 
         elif command.startswith("load "):
             name = command[len("load "):].strip()
             # TODO Prevent data loss by checking diff since save
             # Validate here or workspace level?
-            print(f"Loading {name}.json...", end="")
-            workspace = workspace.load(WORKSPACE_DIR, name)
+            print(f"Loading {name}.json... ", end="")
+            active_workspace = active_workspace.load(WORKSPACE_DIR, name)
             print("Done.")
 
         # Show loadable workspaces
@@ -111,11 +129,17 @@ def main():
         elif command.startswith("set name "):
             name = command[len("set name "):].strip()
             # Allow validation to happen on the workspace lebel (?)
-            workspace.rename(name)
+            active_workspace.rename(name)
 
         elif command == "list":
-            for label in workspace.labels():
+            for label in active_workspace.labels():
                 print(label)
+
+        elif command == "list all":
+            for label in active_workspace.labels():
+                print(f"{label}:")
+                print(active_workspace.get(label))
+                print("")
 
         # Command is an assignment
         elif "=" in command:
@@ -126,12 +150,12 @@ def main():
             # Quick matrix sytax
             else:
                 matrix = parse_quick_matrix(value)
-            workspace.set(name, matrix)
+            active_workspace.set(name, matrix)
             print(matrix)
 
         # Command is recall
-        elif workspace.contains(command):
-            print(workspace.get(command))
+        elif active_workspace.contains(command):
+            print(active_workspace.get(command))
 
         # Command is an operation or invalid
         else:
@@ -140,8 +164,8 @@ def main():
                 if operator in command:
                     left, right = parse_operation(operator, command)
 
-                    left = resolve_operand(left, workspace)
-                    right = resolve_operand(right, workspace)
+                    left = resolve_operand(left, active_workspace)
+                    right = resolve_operand(right, active_workspace)
 
                     result = operation(left, right)
                     print(result)
