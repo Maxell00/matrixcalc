@@ -11,6 +11,9 @@ class Workspace:
         # TODO add name validation
         self.name = name
 
+    def labels(self):
+        return self._variables.keys()
+
     def set(self, name, value):
         self._variables[name] = value
 

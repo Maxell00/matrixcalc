@@ -69,31 +69,53 @@ def main():
         elif command == "save":
             if workspace.name == "untitled":
                 name = input("Save as: ").strip()
+                # Validation?
+                print(f"Saving as {name}.json...", end="")
                 workspace.save_as(WORKSPACE_DIR, name)
+                print("Done.")
             else:
+                print(f"Saving {name}.json...", end="")
                 workspace.save(WORKSPACE_DIR)
+                print("Done")
 
         # Save as after prompt
         elif command == "save as":
             name = input("Save as: ").strip()
-            # #debug
-            # breakpoint()
-            print(f"saving as {name}.json...")
+            # Validate here or workspace level?
+            print(f"Saving as {name}.json...", end="")
             workspace.save_as(WORKSPACE_DIR, name)
+            print("Done.")
 
         # Save as immediately
         elif command.startswith("save as "):
             name = command[len("save as "):].strip()
+            # Validate here or workspace level?
+            print(f"Saving as {name}.json...", end="")
             workspace.save_as(WORKSPACE_DIR, name)
+            print("Done.")
 
         elif command.startswith("load "):
             name = command[len("load "):].strip()
             # TODO Prevent data loss by checking diff since save
+            # Validate here or workspace level?
+            print(f"Loading {name}.json...", end="")
             workspace = workspace.load(WORKSPACE_DIR, name)
+            print("Done.")
+
+        # Show loadable workspaces
+        elif command in ("workspaces", "ws"):
+            for path in WORKSPACE_DIR.iterdir():
+                if path.suffix == ".json":
+                    print(path.stem)
 
         elif command.startswith("set name "):
             name = command[len("set name "):].strip()
+            # Allow validation to happen on the workspace lebel (?)
             workspace.rename(name)
+
+        elif command == "list":
+            for label in workspace.labels():
+                print(label)
 
         # Command is an assignment
         elif "=" in command:
