@@ -8,7 +8,8 @@
 	- --no-autosave / -nas
 	- --new (same as nal?)
 
-- cli >> save output to value
+- cli error handling everywhere
+
 - cli multiple commands in sequence (use | perhaps)
 
 - cli help command
@@ -18,6 +19,7 @@
 
 - cli set cell value (implemented in workspace already)
 
+x cli >> save output to value
 x cli list (list labels AND list label + value)
 x cli list loadable files (ws)
 x cli add feedback with saving, loading, etc

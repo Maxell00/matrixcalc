@@ -97,7 +97,7 @@ def main():
                 print("Done")
 
         # Save as after prompt
-        elif command == "save as":
+        elif command in ("save as", "saveas"):
             name = input("Save as: ").strip()
             # Validate here or workspace level?
             print(f"Saving as {name}.json... ", end="")
@@ -128,14 +128,14 @@ def main():
 
         elif command.startswith("set name "):
             name = command[len("set name "):].strip()
-            # Allow validation to happen on the workspace lebel (?)
+            # Allow validation to happen on the workspace level (?)
             active_workspace.rename(name)
 
         elif command == "list":
             for label in active_workspace.labels():
                 print(label)
 
-        elif command == "list all":
+        elif command in ("list all", "listall"):
             for label in active_workspace.labels():
                 print(f"{label}:")
                 print(active_workspace.get(label))
@@ -153,24 +153,45 @@ def main():
             active_workspace.set(name, matrix)
             print(matrix)
 
-        # Command is recall
-        elif active_workspace.contains(command):
-            print(active_workspace.get(command))
 
-        # Command is an operation or invalid
+        # Command is storage, operation, recall, or invalid
+        # Gets 'result' and then stores or prints outside chain
         else:
-            # Command is an operation
-            for operator, operation in OPERATIONS.items():
-                if operator in command:
-                    left, right = parse_operation(operator, command)
+            result = None
 
-                    left = resolve_operand(left, active_workspace)
-                    right = resolve_operand(right, active_workspace)
+            # Get storage var and strip
+            storage_var = None
+            if ">>" in command:
+                command, storage_var = parse_operation(">>", command)
 
-                    result = operation(left, right)
-                    print(result)
+            # Get operation and operator
+            operation = None
+            operator = None
+
+            for op, func in OPERATIONS.items():
+                if op in command:
+                    operator = op
+                    operation = func
                     break
-            # Command is invalid
+
+            # Command is recall
+            if active_workspace.contains(command):
+                result = active_workspace.get(command)
+
+            # Command is an operation
+            elif operator is not None and operation is not None:
+                left, right = parse_operation(operator, command)
+
+                left = resolve_operand(left, active_workspace)
+                right = resolve_operand(right, active_workspace)
+                result = operation(left, right)
+
+            # Print and store result
+            if result is not None:
+                if storage_var is not None:
+                    active_workspace.set(storage_var, result)
+                print(result)
+            # Unless command is invalid
             else:
                 print("No valid command")
 
