@@ -73,11 +73,14 @@ def main():
     else:
         print("Autoload failed.")
 
+    # Main REPL
     while True:
         command = input("> ")
         
         # Handle named commands
         if command in ("quit", "exit", "q"):
+            # TODO Disable if autosave flag off
+            update_last_workspace(active_workspace)
             print("Goodbye!")
             break
 

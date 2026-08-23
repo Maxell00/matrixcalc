@@ -1,6 +1,6 @@
 --- IMPLEMENTATION ---
 
-- cli autosave / autoload
+! cli autosave / autoload
     - autoload functionality with .last workspace file
 	- populate save load exit with relevant func calls
     - consider flag implementation
