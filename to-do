@@ -1,8 +1,7 @@
 --- IMPLEMENTATION ---
 
-! cli multiple commands in sequence (use | perhaps)
-
 - fix print spacing for 1+ char cells
+- add newlines after print commands for legibility
 
 - cli error handling everywhere
 
@@ -20,6 +19,7 @@
 
 - cli set cell value (implemented in workspace already)
 
+x cli multiple commands in sequence (use | perhaps)
 x cli load/(quit?) warn on potential data loss
 x cli autosave / autoload -- base functionality
 x cli clear named matrix

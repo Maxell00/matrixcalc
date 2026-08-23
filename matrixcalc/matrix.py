@@ -34,8 +34,10 @@ class Matrix:
         return f"Matrix({self._data!r})"
 
     def __str__(self):
+        width = self.max_cell_length
+
         return "\n".join(
-            " ".join(str(value) for value in row)
+            " ".join(f"{value:>{width}}" for value in row)
             for row in self._data
         )
 
@@ -161,6 +163,14 @@ class Matrix:
             raise ValueError("Trace not defined for non-square matrices")	
 
         return sum(self._data[k][k] for k in range(self.rows))
+
+    @property
+    def max_cell_length(self):
+        return max(
+            len(str(value))
+            for row in self._data
+            for value in row
+        )
 
     # Class Methods
     @classmethod

@@ -220,7 +220,7 @@ def main():
 
             # Quit logic outside do_command for easier break
             if command in ("quit", "exit", "q"):
-                if active_workspace.dirty and confirm("Quit with unsaved changes?"):
+                if active_workspace.clean or confirm("Quit with unsaved changes?"):
                     # TODO Disable if autosave flag off
                     update_last_workspace(active_workspace)
                     print("Goodbye!")
