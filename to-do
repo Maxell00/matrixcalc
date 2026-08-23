@@ -18,11 +18,10 @@
 
 - cli help command
 
-- cli load/(quit?) warn on potential data loss
-    - untitled exception
-
 - cli set cell value (implemented in workspace already)
 
+x cli load/(quit?) warn on potential data loss
+x cli autosave / autoload -- base functionality
 x cli clear named matrix
 x cli >> save output to value
 x cli list (list labels AND list label + value)

@@ -83,10 +83,11 @@ def main():
         
         # Handle named commands
         if command in ("quit", "exit", "q"):
-            # TODO Disable if autosave flag off
-            update_last_workspace(active_workspace)
-            print("Goodbye!")
-            break
+            if active_workspace.dirty and confirm("Quit with unsaved changes?"):
+                # TODO Disable if autosave flag off
+                update_last_workspace(active_workspace)
+                print("Goodbye!")
+                break
 
         elif command == "name":
             print(active_workspace.name)
@@ -120,12 +121,12 @@ def main():
             print("Done.")
 
         elif command.startswith("load "):
-            name = command[len("load "):].strip()
-            # TODO Prevent data loss by checking diff since save
-            # Validate here or workspace level?
-            print(f"Loading {name}.json... ", end="")
-            active_workspace = active_workspace.load(WORKSPACE_DIR, name)
-            print("Done.")
+            if active_workspace.dirt and confirm("Discard changes and load?"):
+                name = command[len("load "):].strip()
+                # Validate here or workspace level?
+                print(f"Loading {name}.json... ", end="")
+                active_workspace = active_workspace.load(WORKSPACE_DIR, name)
+                print("Done.")
 
         # Show loadable workspaces
         elif command in ("workspaces", "ws"):
@@ -138,7 +139,7 @@ def main():
             # Allow validation to happen on the workspace level (?)
             active_workspace.rename(name)
 
-        elif command == "list":
+        elif command in ("list", "ls"):
             for label in active_workspace.labels():
                 print(label)
 
@@ -160,17 +161,18 @@ def main():
             active_workspace.set(name, matrix)
             print(matrix)
 
-        elif command.startswith("clear "):
+        elif command.startswith("clear ") or command.startswith("clr "):
             name = command[len("clear "):].strip()
             # TODO Add validation
             active_workspace.delete(name)
 
         elif command in ("clearall", "clear all"):
-            # TODO Add confirmation
-            active_workspace = Workspace(active_workspace.name)
+            if not active_workspace.dirty or confirm("Discard changes and clear workspace?"):
+                active_workspace = Workspace(active_workspace.name)
+                active_workspace.dirty = True
 
         elif command == "new":
-            # TODO Add confirmation prompt
+            if active_workspace.dirty and confirm("Discard unsaved changes and open new workspace?"):
             active_workspace = Workspace()
 
         # Command is storage, operation, recall, or invalid
