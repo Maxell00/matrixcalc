@@ -6,15 +6,15 @@
 
 - cli error handling everywhere
 
-
+--- PRIORITY 2 ---
 
 - cli autosave / autoload
     - autoload functionality with .last workspace file
-	- populate save load exit with relevant func calls
-    - consider flag implementation
-	- --no-autoload / -nal
-	- --no-autosave / -nas
-	- --new (same as nal?)
+	    - populate save load exit with relevant func calls
+	- consider flag implementation
+	    - --no-autoload / -nal
+	    - --no-autosave / -nas
+	    - --new (same as nal?)
 
 - cli help command
 
@@ -23,6 +23,7 @@
 
 - cli set cell value (implemented in workspace already)
 
+x cli clear named matrix
 x cli >> save output to value
 x cli list (list labels AND list label + value)
 x cli list loadable files (ws)

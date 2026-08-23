@@ -57,6 +57,10 @@ def resolve_operand(operand, workspace):
 def update_last_workspace(workspace):
     LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
 
+def confirm(prompt):
+    response = input(f"{prompt" [y/N] ").strip().lower()
+    return response in ("y", "yes")
+
 def main():
     active_workspace = Workspace()
 
@@ -156,6 +160,14 @@ def main():
             active_workspace.set(name, matrix)
             print(matrix)
 
+        elif command.startswith("clear "):
+            name = command[len("clear "):].strip()
+            # TODO Add validation
+            active_workspace.delete(name)
+
+        elif command == "new":
+            # TODO Add confirmation prompt
+            active_workspace = Workspace()
 
         # Command is storage, operation, recall, or invalid
         # Gets 'result' and then stores or prints outside chain
