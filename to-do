@@ -1,16 +1,20 @@
 --- IMPLEMENTATION ---
 
-! cli autosave / autoload
+! cli multiple commands in sequence (use | perhaps)
+
+- fix print spacing for 1+ char cells
+
+- cli error handling everywhere
+
+
+
+- cli autosave / autoload
     - autoload functionality with .last workspace file
 	- populate save load exit with relevant func calls
     - consider flag implementation
 	- --no-autoload / -nal
 	- --no-autosave / -nas
 	- --new (same as nal?)
-
-- cli error handling everywhere
-
-- cli multiple commands in sequence (use | perhaps)
 
 - cli help command
 
