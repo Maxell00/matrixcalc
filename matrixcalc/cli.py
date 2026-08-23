@@ -58,7 +58,7 @@ def update_last_workspace(workspace):
     LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
 
 def confirm(prompt):
-    response = input(f"{prompt" [y/N] ").strip().lower()
+    response = input(f"{prompt} [y/N] ").strip().lower()
     return response in ("y", "yes")
 
 def main():
@@ -164,6 +164,10 @@ def main():
             name = command[len("clear "):].strip()
             # TODO Add validation
             active_workspace.delete(name)
+
+        elif command in ("clearall", "clear all"):
+            # TODO Add confirmation
+            active_workspace = Workspace(active_workspace.name)
 
         elif command == "new":
             # TODO Add confirmation prompt
