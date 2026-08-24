@@ -20,6 +20,10 @@ class Workspace:
         self._variables[name] = value
         self.dirty = True
 
+    def set_cell(self, name, index, value):
+        self._variables[name][index] = value
+        self.dirty = True
+
     def get(self, name):
         return self._variables[name]
     

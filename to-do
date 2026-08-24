@@ -1,8 +1,8 @@
 --- IMPLEMENTATION ---
 
-- fix print spacing for 1+ char cells
-- add newlines after print commands for legibility
+! cli set cell value (implemented in workspace already)
 
+- add newlines after print commands for legibility
 - cli error handling everywhere
 
 --- PRIORITY 2 ---
@@ -17,7 +17,7 @@
 
 - cli help command
 
-- cli set cell value (implemented in workspace already)
+x fix print spacing for 1+ char cells
 
 x cli multiple commands in sequence (use | perhaps)
 x cli load/(quit?) warn on potential data loss

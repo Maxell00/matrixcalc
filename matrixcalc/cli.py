@@ -151,7 +151,8 @@ def do_command(command, active_workspace):
         if active_workspace.dirty and confirm("Discard unsaved changes and open new workspace?"):
             active_workspace = Workspace()
 
-    # Command is storage, operation, recall, or invalid
+    # Command is storage, operation, recall,
+    # set, or invalid
     # Gets 'result' and then stores or prints outside chain
     else:
         result = None
@@ -175,6 +176,24 @@ def do_command(command, active_workspace):
         if active_workspace.contains(command):
             result = active_workspace.get(command)
 
+        # Command is set
+        elif command.startswith("set "):
+            # Split by ' ' delim
+            parts = command.split()
+
+            if len(parts) != 5:
+                print("Usage: set NAME ROW COL VALUE")
+                result = None
+            else:
+                # Set name, row, col, value
+                name = parts[1]
+                row = int(parts[2]) - 1
+                col = int(parts[3]) - 1
+                value = int(parts[4])
+
+                active_workspace.set_cell(name, (row, col), value)
+                result = active_workspace.get(name)
+
         # Command is an operation
         elif operator is not None and operation is not None:
             left, right = parse_operation(operator, command)
@@ -187,7 +206,7 @@ def do_command(command, active_workspace):
         if result is not None:
             if storage_var is not None:
                 active_workspace.set(storage_var, result)
-            print(result)
+            print(f"{result}\n")
         # Unless command is invalid
         else:
             print("No valid command")
