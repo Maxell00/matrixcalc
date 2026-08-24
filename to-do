@@ -8,6 +8,9 @@
 
 --- PRIORITY 2 ---
 
+- add symbolic logic
+    - independant polynomial engine in own file?
+
 - cli support set_cell with non int
 
 - add deep fraction support
