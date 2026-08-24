@@ -1,11 +1,10 @@
 --- IMPLEMENTATION ---
 
-! cli set cell value (implemented in workspace already)
-
-- add newlines after print commands for legibility
 - cli error handling everywhere
 
 --- PRIORITY 2 ---
+
+-listall and list alphabetical
 
 - cli autosave / autoload
     - autoload functionality with .last workspace file
@@ -19,6 +18,8 @@
 
 x fix print spacing for 1+ char cells
 
+x cli set cell value (implemented in workspace already)
+x cli add newlines after print commands for legibility
 x cli multiple commands in sequence (use | perhaps)
 x cli load/(quit?) warn on potential data loss
 x cli autosave / autoload -- base functionality

@@ -1,4 +1,5 @@
 import ast
+import readline
 from pathlib import Path
 from matrixcalc.matrix import Matrix
 from matrixcalc.workspace import Workspace
@@ -138,7 +139,10 @@ def do_command(command, active_workspace):
         print(matrix)
 
     elif command.startswith("clear ") or command.startswith("clr "):
-        name = command[len("clear "):].strip()
+        if command.startswith("clear"):
+            name = command[len("clear "):].strip()
+        elif command.startswith("clr "):
+            name = command[len("clr "):].strip()
         # TODO Add validation
         active_workspace.delete(name)
 
@@ -148,7 +152,7 @@ def do_command(command, active_workspace):
             active_workspace.dirty = True
 
     elif command == "new":
-        if active_workspace.dirty and confirm("Discard unsaved changes and open new workspace?"):
+        if not active_workspace.dirty or confirm("Discard unsaved changes and open new workspace?"):
             active_workspace = Workspace()
 
     # Command is storage, operation, recall,
