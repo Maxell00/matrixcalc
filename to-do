@@ -2,6 +2,8 @@
 
 - cli error handling everywhere
 
+- cli 'silent' behavior after successful command
+
 --- PRIORITY 2 ---
 
 -listall and list alphabetical
