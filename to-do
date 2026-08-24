@@ -31,6 +31,8 @@ x cli save load
 
 --- DEBUG ---
 
+- prevent untitled.json from being last workspace
+
 - add validation to various user inputs
     - savename loadname setname
     - matrix variable name A B C

@@ -97,7 +97,7 @@ def do_command(command, active_workspace):
         print("Done.")
 
     elif command.startswith("load "):
-        if active_workspace.dirt and confirm("Discard changes and load?"):
+        if active_workspace.dirty and confirm("Discard changes and load?"):
             name = command[len("load "):].strip()
             # Validate here or workspace level?
             print(f"Loading {name}.json... ", end="")
@@ -214,18 +214,17 @@ def main():
     while True:
         command_line = input("> ")
         
+        # Quit logic outside do_command for easier break
+        if command_line in ("quit", "exit", "q"):
+            if not active_workspace.dirty or confirm("Quit with unsaved changes?"):
+                # TODO Disable if autosave flag off
+                update_last_workspace(active_workspace)
+                print("Goodbye!")
+                break
+
         commands = command_line.split("|")
 
         for command in commands:
-
-            # Quit logic outside do_command for easier break
-            if command in ("quit", "exit", "q"):
-                if active_workspace.clean or confirm("Quit with unsaved changes?"):
-                    # TODO Disable if autosave flag off
-                    update_last_workspace(active_workspace)
-                    print("Goodbye!")
-                    break
-
             active_workspace = do_command(
                 command.strip(),
                 active_workspace
