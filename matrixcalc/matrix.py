@@ -204,3 +204,6 @@ class Matrix:
     # Methods
     def to_list(self):
         return [row[:] for row in self._data]
+
+    def copy(self):
+        return Matrix(self.to_list())

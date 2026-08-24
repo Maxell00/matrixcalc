@@ -205,7 +205,7 @@ def do_command(command, active_workspace):
         # Print and store result
         if result is not None:
             if storage_var is not None:
-                active_workspace.set(storage_var, result)
+                active_workspace.set(storage_var, result.copy())
             print(f"{result}\n")
         # Unless command is invalid
         else:
