@@ -4,9 +4,16 @@
 
 - cli 'silent' behavior after successful command
 
+- cli add 'new ' command to create and rename in one step
+
 --- PRIORITY 2 ---
 
--listall and list alphabetical
+- cli support set_cell with non int
+
+- add deep fraction support
+    - which levels of abstraction?
+
+- cli make listall and list alphabetical
 
 - cli autosave / autoload
     - autoload functionality with .last workspace file

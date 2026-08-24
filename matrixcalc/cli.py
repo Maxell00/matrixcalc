@@ -104,7 +104,7 @@ def do_command(command, active_workspace):
         print("Done.")
 
     elif command.startswith("load "):
-        if active_workspace.dirty and confirm("Discard changes and load?"):
+        if not active_workspace.dirty or confirm("Discard changes and load?"):
             name = command[len("load "):].strip()
             # Validate here or workspace level?
             print(f"Loading {name}.json... ", end="")
