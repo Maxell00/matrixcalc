@@ -90,8 +90,14 @@ def do_command(command, active_workspace):
         print("Done.")
 
     # Save as immediately
-    elif command.startswith("save as "):
-        name = command[len("save as "):].strip()
+    elif command.startswith("save as ") or command.startswith("saveas "):
+        prefix = (
+            "save as "
+            if command.startswith("save as ")
+            else "saveas "
+        )
+        name = command[len(prefix):].strip()
+
         # Validate here or workspace level?
         print(f"Saving as {name}.json... ", end="")
         active_workspace.save_as(WORKSPACE_DIR, name)
@@ -111,9 +117,15 @@ def do_command(command, active_workspace):
             if path.suffix == ".json":
                 print(path.stem)
 
-    elif command.startswith("set name "):
-        name = command[len("set name "):].strip()
-        # Allow validation to happen on the workspace level (?)
+    # Rename after prompt
+    if command == "rename":
+        name = input("Rename: ").strip()
+        active_workspace.rename(name)
+
+    # Rename immediately
+    elif command.startswith("rename "):
+        name = command[len("rename "):].strip()
+        # TODO Validate here or in workspace.py
         active_workspace.rename(name)
 
     elif command in ("list", "ls"):
