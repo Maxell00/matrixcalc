@@ -132,7 +132,7 @@ def do_command(command, active_workspace):
         for label in active_workspace.labels():
             print(label)
 
-    elif command in ("list all", "listall"):
+    elif command in ("list all", "listall", "la"):
         for label in active_workspace.labels():
             print(f"{label}:")
             print(active_workspace.get(label))
