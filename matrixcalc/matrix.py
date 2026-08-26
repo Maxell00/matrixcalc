@@ -1,5 +1,10 @@
+from __future__ import annotations
+from collections.abc import Sequence
+
 class Matrix:
-    def __init__(self, data):
+    _data: list[list[float | int]]
+
+    def __init__(self, data: Sequence[Sequence[int|float]]) -> None:
 
         ## DATA VALIDATION
         if not data:
@@ -19,21 +24,21 @@ class Matrix:
 
         # Shallow copy data to self._data
         # NOTE: May affect symbolic logic implementation
-        self._data = [row[:] for row in data]
+        self._data = [list(row) for row in data]
 
     # Dunder
-    def __getitem__(self, index):
+    def __getitem__(self, index: tuple[int, int]) -> int | float:
         row, col = index
         return self._data[row][col]
 
-    def __setitem__(self, index, value):
+    def __setitem__(self, index: tuple[int, int], value: int | float) -> None:
         row, col = index
         self._data[row][col] = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Matrix({self._data!r})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         width = self.max_cell_length
 
         return "\n".join(
@@ -41,7 +46,7 @@ class Matrix:
             for row in self._data
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Matrix):
             return False
 
@@ -54,7 +59,7 @@ class Matrix:
             for col in range(self.cols)
         )
 
-    def __add__(self, other):
+    def __add__(self, other: Matrix) -> Matrix:
         if not isinstance(other, Matrix):
             raise TypeError("Matrix must be added to another matrix")
 
@@ -71,7 +76,7 @@ class Matrix:
 
         return Matrix(data)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Matrix) -> Matrix:
         if not isinstance(other, Matrix):
             raise TypeError("Matrix must be added to another matrix")
 
@@ -88,7 +93,7 @@ class Matrix:
 
         return Matrix(data)
 
-    def __mul__(self, scalar):
+    def __mul__(self, scalar: int | float) -> Matrix:
         if not isinstance(scalar, (int, float)):
             raise TypeError("Scalar must be int or float")
 
@@ -102,10 +107,10 @@ class Matrix:
 
         return Matrix(data)
 
-    def __rmul__(self, scalar):
+    def __rmul__(self, scalar: int | float) -> Matrix:
         return self * scalar
 
-    def __matmul__(self, other):
+    def __matmul__(self, other: Matrix) -> Matrix:
         if not isinstance(other, Matrix):
             raise TypeError("Matrix multiplication requires two matrices")
 
@@ -125,31 +130,31 @@ class Matrix:
 
         return Matrix(data)
 
-    def __truediv__(self, scalar):
+    def __truediv__(self, scalar: int | float) -> Matrix:
         if not isinstance(scalar, (int,float)):
             raise TypeError("Matrix must be divided by a scalar")
 
         return self * (1 / scalar)
 
-    def __neg__(self):
+    def __neg__(self) -> Matrix:
         return -1 * self
 
     # Properties
     @property
-    def rows(self):
+    def rows(self) -> int:
         return len(self._data)
 
     @property
-    def cols(self):
+    def cols(self) -> int:
         return len(self._data[0])
 
     @property
-    def shape(self):
+    def shape(self) -> tuple[int, int]:
         return (self.rows, self.cols)
 
     @property
     # transpose property
-    def T(self):
+    def T(self) -> Matrix:
         data = [
             [self._data[row][col] for row in range(self.rows)]
             for col in range(self.cols)
@@ -158,14 +163,14 @@ class Matrix:
         return Matrix(data)
 
     @property
-    def trace(self):
+    def trace(self) -> int | float:
         if self.cols != self.rows:
             raise ValueError("Trace not defined for non-square matrices")	
 
         return sum(self._data[k][k] for k in range(self.rows))
 
     @property
-    def max_cell_length(self):
+    def max_cell_length(self) -> int:
         return max(
             len(str(value))
             for row in self._data
@@ -174,7 +179,7 @@ class Matrix:
 
     # Class Methods
     @classmethod
-    def identity(cls, n):
+    def identity(cls, n: int) -> Matrix:
         data = [
             [
                 1 if row == col else 0
@@ -186,7 +191,7 @@ class Matrix:
         return Matrix(data)
 
     @classmethod
-    def zeros(cls, rows, cols):
+    def zeros(cls, rows: int, cols: int) -> Matrix:
 
         if not isinstance(rows, int) or not isinstance(cols, int):
             raise TypeError("Dimensions must be integers")
@@ -195,15 +200,15 @@ class Matrix:
             raise ValueError("Dimensions must be positive")
 
         data = [
-            [0 for col in range(cols)]
-            for row in range(rows)
+            [0] * cols
+            for _ in range(rows)
         ]
 
         return Matrix(data)
 
     # Methods
-    def to_list(self):
+    def to_list(self) -> list[list[int | float]]:
         return [row[:] for row in self._data]
 
-    def copy(self):
+    def copy(self) -> Matrix:
         return Matrix(self.to_list())
