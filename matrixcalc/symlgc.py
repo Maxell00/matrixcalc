@@ -1,69 +1,74 @@
+from __future__ import annotations
+
 # Monomial contains a series of variables and degrees, but not a coefficient
 # Monomial is a dictionary, with keys representing variables, and values representing degrees
 class Monomial:
-    def __init__(self, exponents):
-        # Should data be in form of dict?
+    def __init__(self, exponents: dict[str, int]) -> None:
         if not data:
             # Arch decision -- allow empty monomial? -- leaning yes
         # Internal structure with dictionary
         # {}
 
+        # Data validation - keys must be variables (lowercase str), values must be integers
+
+
+    # NOTE: __add__, __sub__, and __neg__ not implemented for architectural reasons
+
     # Returns a variable's degree
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> int:
         return self._exponents[key]
 
     # Sets a variable's degree
-    def __setitem__(self, key, value):
-        # Should this shallow copy value?
+    def __setitem__(self, key: str, value: int) -> none:
         self._exponents[key] = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Monomial({self._exponents!r})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # Have to decide how to make exponents look nice in terminal-friendly way
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Monomial):
             return False
-        return self._variables == other._variables
 
-    def __add__(self, other):
-        if not isinstance(other, Monomial):
-            raise TypeError("Monomial must be added to a monomial")
-        # Perhaps ban adding? Should only be added via polynomial implementation
+        return self._exponents == other._exponents
 
-    def __sub__(self, other):
+    def __mul__(self, other: object) -> Monomial:
         if not isinstance(other, Monomial):
-            raise TypeError("Monomial must be subtracted from a monomial")
-        # See note above
-
-    def __mul__(self, other):
-        if not isinstance(other, Monomial):
-            raise TypeError("Monomial must be multiplied with a monomial")
+            return NotImplemented
 
         result_data = {}
-        for key in self.keys() & other.keys():
-            result_data[key] = self.get(key, 0) + other.get(key, 0)
+        for key in self._exponents.keys() | other._exponents.keys():
+            result_data[key] = (
+                self._exponents.get(key, 0)
+                + other._exponents.get(key, 0)
+            )
         return Monomial(result_data).clean()
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: object) -> Monomial:
         return self * other
             
-    # Needed?
-    def __truediv__(self, scalar):
-        # Placeholder
+    def __truediv__(self, other: object) -> Monomial:
+        if not isinstance(other, Monomial):
+            return NotImplemented
 
-    def __neg__(self):
-        return -1 * self
-
+        return self * other.reciprocal()
+    
     # Methods
 
     # Remove zero entries
-    def clean(self):
+    def clean(self) -> None:
         for key, value in self.items():
             if value == 0:
                 self.pop(key)
+
+    def reciprocal(self) -> Monomial:
+        result_data = {
+            key: -value
+            for key, value in self._exponents.items()
+        }
+        return Monomial(result_data)
 
 # A Polynomial stores only nonzero coefficients, with integer exponents ≥ 0
 # Its internal mapping is normalized so that each exponent occurs exactly once.
