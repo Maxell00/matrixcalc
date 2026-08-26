@@ -1,5 +1,4 @@
 import ast
-import readline
 from pathlib import Path
 from matrixcalc.matrix import Matrix
 from matrixcalc.workspace import Workspace
@@ -169,7 +168,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     # set, or invalid
     # Gets 'result' and then stores or prints outside chain
     else:
-        result = None
+        result: Matrix | None = None
 
         # Get storage var and strip
         storage_var = None
