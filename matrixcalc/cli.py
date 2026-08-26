@@ -7,6 +7,7 @@ from matrixcalc.workspace import Workspace
 # TODO: Add autosave-load functionality, handle on-off with flag, set related constant (if necessary)
 
 # Sets savefile path
+# Hardcoded to ~/.matrixcalc/workspaces
 WORKSPACE_DIR = Path.home() / ".matrixcalc" / "workspaces"
 WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -20,7 +21,7 @@ OPERATIONS = {
     "/": lambda a, b: a / b,
 }
 
-def parse_number(text):
+def parse_number(text: str) -> int | float:
     try:
         value = ast.literal_eval(text)
     except (ValueError, SyntaxError):
@@ -31,11 +32,11 @@ def parse_number(text):
 
     raise ValueError(f"Invalid number: {text}")
 
-def parse_matrix(text):
+def parse_matrix(text: str) -> Matrix:
     data = ast.literal_eval(text)
     return Matrix(data)
 
-def parse_quick_matrix(text):
+def parse_quick_matrix(text: str) -> Matrix:
     # Takes 'quick matrix input' and returns Matrix object
     # Currently assumed all values are numbers
     data = [
@@ -45,24 +46,24 @@ def parse_quick_matrix(text):
 
     return Matrix(data)
 
-def parse_operation(delimiter, command):
+def parse_operation(delimiter: str, command: str) -> tuple[str, str]:
     left, right = command.split(delimiter, 1)
     return left.strip(), right.strip()
 
-def resolve_operand(operand, workspace):
+# Resolve an operand string from CLI into a number or Matrix
+def resolve_operand(operand: str, workspace: Workspace) -> int | float | Matrix:
     if workspace.contains(operand):
         return workspace.get(operand)
-
     return parse_number(operand)
 
-def update_last_workspace(workspace):
+def update_last_workspace(workspace: Workspace) -> None:
     LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
 
-def confirm(prompt):
+def confirm(prompt: str) -> bool:
     response = input(f"{prompt} [y/N] ").strip().lower()
     return response in ("y", "yes")
 
-def do_command(command, active_workspace):
+def do_command(command: str, active_workspace: Workspace) -> Workspace:
 
     # Handle named commands
 
@@ -226,7 +227,7 @@ def do_command(command, active_workspace):
 
     return active_workspace
 
-def main():
+def main() -> None:
     active_workspace = Workspace()
 
     # Auto-load
