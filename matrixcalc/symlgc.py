@@ -1,7 +1,7 @@
 # Monomial contains a series of variables and degrees, but not a coefficient
 # Monomial is a dictionary, with keys representing variables, and values representing degrees
 class Monomial:
-    def __init__(self, data):
+    def __init__(self, exponents):
         # Should data be in form of dict?
         if not data:
             # Arch decision -- allow empty monomial? -- leaning yes

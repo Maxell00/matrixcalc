@@ -3,12 +3,12 @@ from pathlib import Path
 from matrixcalc.matrix import Matrix
 
 class Workspace:
-    def __init__(self, name="untitled"):
+    def __init__(self, name: str = "untitled"):
         self.name = name
         self._variables = {}
         self.dirty = False
 
-    def rename(self, name):
+    def rename(self, name: str):
         # TODO add name validation
         self.name = name
         self.dirty = True
@@ -16,25 +16,35 @@ class Workspace:
     def labels(self):
         return self._variables.keys()
 
-    def set(self, name, value):
+    def set(self, name: str, value: Matrix):
         self._variables[name] = value
         self.dirty = True
 
-    def set_cell(self, name, index, value):
+    def set_cell(
+        self,
+        name: str, 
+        index: tuple[int, int], 
+        value: Matrix,
+    ):
         self._variables[name][index] = value
         self.dirty = True
 
-    def get(self, name):
+    def get(self, name: str):
         return self._variables[name]
     
-    def delete(self, name):
+    def delete(self, name: str):
         del self._variables[name]
         self.dirty = True
 
-    def contains(self, name):
+    def contains(self, name: str):
         return name in self._variables
 
-    def save(self, directory, *, name=None):
+    def save(
+            self,
+            directory: Path,
+            *,
+            name: str | None = None
+        ):
         if name is None:
             name = self.name
 
@@ -50,14 +60,14 @@ class Workspace:
 
         self.dirty = False
 
-    def save_as(self, directory, name):
+    def save_as(self, directory: Path, name: str):
         self.save(directory, name=name)
         self.name = name
 
         self.dirty = False
 
     @classmethod
-    def load(cls, directory, name):
+    def load(cls, directory: Path, name: str):
         path = Path(directory) / f"{name}.json"
         
         with path.open("r", encoding="utf-8") as file:

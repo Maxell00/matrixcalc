@@ -151,10 +151,7 @@ def do_command(command, active_workspace):
         print(matrix)
 
     elif command.startswith("clear ") or command.startswith("clr "):
-        if command.startswith("clear"):
-            name = command[len("clear "):].strip()
-        elif command.startswith("clr "):
-            name = command[len("clr "):].strip()
+        name = command.split(maxsplit=1)[1]
         # TODO Add validation
         active_workspace.delete(name)
 
