@@ -1,22 +1,26 @@
+from __future__ import annotations
 import json
 from pathlib import Path
 from matrixcalc.matrix import Matrix
+from collections.abc import KeysView
 
 class Workspace:
-    def __init__(self, name: str = "untitled"):
+    _variables: dict[str, Matrix]
+
+    def __init__(self, name: str = "untitled") -> None:
         self.name = name
         self._variables = {}
         self.dirty = False
 
-    def rename(self, name: str):
+    def rename(self, name: str) -> None:
         # TODO add name validation
         self.name = name
         self.dirty = True
 
-    def labels(self):
+    def labels(self) -> KeysView[str]:
         return self._variables.keys()
 
-    def set(self, name: str, value: Matrix):
+    def set(self, name: str, value: Matrix) -> None:
         self._variables[name] = value
         self.dirty = True
 
@@ -24,19 +28,19 @@ class Workspace:
         self,
         name: str, 
         index: tuple[int, int], 
-        value: Matrix,
-    ):
+        value: int | float,
+    ) -> None:
         self._variables[name][index] = value
         self.dirty = True
 
-    def get(self, name: str):
+    def get(self, name: str) -> Matrix:
         return self._variables[name]
     
-    def delete(self, name: str):
+    def delete(self, name: str) -> None:
         del self._variables[name]
         self.dirty = True
 
-    def contains(self, name: str):
+    def contains(self, name: str) -> bool:
         return name in self._variables
 
     def save(
@@ -44,7 +48,7 @@ class Workspace:
             directory: Path,
             *,
             name: str | None = None
-        ):
+        ) -> None:
         if name is None:
             name = self.name
 
@@ -60,14 +64,14 @@ class Workspace:
 
         self.dirty = False
 
-    def save_as(self, directory: Path, name: str):
+    def save_as(self, directory: Path, name: str) -> None:
         self.save(directory, name=name)
         self.name = name
 
         self.dirty = False
 
     @classmethod
-    def load(cls, directory: Path, name: str):
+    def load(cls, directory: Path, name: str) -> Workspace:
         path = Path(directory) / f"{name}.json"
         
         with path.open("r", encoding="utf-8") as file:
