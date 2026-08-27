@@ -3,20 +3,17 @@ from __future__ import annotations
 # Monomial contains a series of variables and degrees, but not a coefficient
 # Monomial is a dictionary, with keys representing variables, and values representing degrees
 class Monomial:
-    def __init__(self, exponents: dict[str, int]) -> None:
-        if not data:
-            # Arch decision -- allow empty monomial? -- leaning yes
-        # Internal structure with dictionary
-        # {}
+    def __init__(self, exponents: dict[str, int] | None = None) -> None:
 
         # Data validation - keys must be variables (lowercase str), values must be integers
 
+        self._exponents = exponents.copy() if exponents is not None else {}
 
     # NOTE: __add__, __sub__, and __neg__ not implemented for architectural reasons
 
     # Returns a variable's degree
     def __getitem__(self, key: str) -> int:
-        return self._exponents[key]
+        return self._exponents.get(key, 0)
 
     # Sets a variable's degree
     def __setitem__(self, key: str, value: int) -> none:
@@ -55,13 +52,19 @@ class Monomial:
 
         return self * other.reciprocal()
     
+    # Class Methods
+    @classmethod
+    def zero(cls) -> Monomial:
+        # PLACEHOLDER
+        # TBD handle empty monos?
+
     # Methods
 
     # Remove zero entries
     def clean(self) -> None:
-        for key, value in self.items():
-            if value == 0:
-                self.pop(key)
+        for key in list(self._exponents):
+            if self._exponents[key] == 0:
+                del self._exponents[key]
 
     def reciprocal(self) -> Monomial:
         result_data = {
@@ -74,28 +77,49 @@ class Monomial:
 # Its internal mapping is normalized so that each exponent occurs exactly once.
 
 class Polynomial:
-    def __init__(self, data):
-        # Placeholder
+    # Keys represent terms and are either a Monomial or 1
+    # Values represent coefficients and are numbers
+    # Internal _coef dict should always contain a key 1
+    def __init__(self, coef: dict[Monomial | int, int | float]) -> None:
+        # DATA VALIDATION
+        # PLACEHOLDER
+
+        self._coef = coef.copy()
 
     # Returns a coefficient
-    def __getitem__(self, index):
-        # Placeholder
-    
-    # Sets a coefficient
-    def __setitem__(self, index, value):
-        # Placeholder
+    def __getitem__(self, key: Monomial) -> int | float:
+        return self._coef.get(key, 0)
 
-    def __repr__(self):
-        # Placeholder
+    # Sets a coefficient
+    def __setitem__(self, key: Monomial, value: int | float) -> None:
+        self._coef[key] = value
+
+    def __repr__(self) -> str:
+        return f"Polynomial({self._coef!r})"
 
     def __str__(self):
-        # Placeholder
+        # Implementation TBD
 
-    def __eq__(self, other):
-        # Placeholder
+    def __eq__(self, other: Object) -> bool:
+        if self._coef == self.zero():
+            return other == 0
+        if not isinstance(other, Polynomial):
+            return False
+        return self._coef == other._coef
 
-    def __add__(self, other):
-        # Placeholder
+    def __add__(self, other: Polynomial | int | float) -> Polynomial:
+        if isinstance(other, (int, float):
+            other = Polynomial(format_bare_num(other))
+        elif not isinstance(other, Polynomial):
+            return NotImplemented
+
+        result_data = {}
+        for key in self._exponents.keys() | other._exponents.keys():
+            result_data[key] = (
+                self._exponents.get(key, 0)
+                + other._exponents.get(key, 0)
+            )
+        return Polynomial(result_data).clean()
 
     def __sub__(self, other):
         # Placeholder
@@ -111,5 +135,29 @@ class Polynomial:
         # Placeholder
 
     def __neg__(self):
-        return -1 * self
+        result_data = {
+            key: -value
+            for key, value in self._coef
+        }
+        return Polynomial(result_data)
+
+    # Class Methods
+
+    @classmethod
+    def from_number(cls, num: int | float) -> Polynomial:
+        return cls({1: num})
+
+    @classmethod
+    def zero(cls) -> Polynomial:
+        return cls({1: 0})
+
+    # Methods
+
+    # Remove zero entries
+    def clean(self) -> None:
+        for key in list(self._coef):
+            if self[key] == 0 and key != 1:
+                del self._coef[key]
+
+
 
