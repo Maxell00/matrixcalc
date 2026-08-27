@@ -98,11 +98,10 @@ class Polynomial:
     _coef: dict[Monomial, int | float]
 
     def __init__(self, coef: dict[Monomial, int | float]) -> None:
-        # DATA VALIDATION
-        # coef must contain Monomial()
-        # PLACEHOLDER
-
         self._coef = coef.copy()
+        if Monomial() not in self._coef:
+            self._coef[Monomial()] = 0
+        self.clean()
 
     # Returns a coefficient
     def __getitem__(self, key: Monomial) -> int | float:
@@ -170,11 +169,25 @@ class Polynomial:
     def __sub__(self, other):
         pass
 
-    def __mul__(self, other):
-        pass
+    def __mul__(self, other: object):
+        if isinstance(other, (int, float)):
+            result_data = {
+                mono: coef * other
+                for mono, coef in self._coef.items()
+            }
+            return Polynomial(result_data)
+        elif isintance(other, Polynomial):
+            combined_terms: list[Polynomial] = [
+                self._multiply_terms(mono1, coef1, mono2, coef2)
+                for mono1, coef1 in self._coef.items()
+                for mono2, coef2 in other._coef.items()
+            ]
+            return sum(combined_terms)
+        else:
+            return NotImplemented
 
     def __rmul__(self, other):
-        pass
+        return self * other
             
     # Needed?
     def __truediv__(self, scalar):
@@ -204,4 +217,14 @@ class Polynomial:
         for key in list(self._coef):
             if self[key] == 0 and key != Monomial():
                 del self._coef[key]
+
+    # Static Methods
+    @staticmethod
+    def _multiply_terms(
+        mono1: Monomial,
+        coef1: int | float,
+        mono2: Monomial,
+        coef2: int | float,
+    ) -> tuple[Monomial, int | float]:
+        return mono1 * mono2, coef1 * coef2
 
