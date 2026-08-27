@@ -1,23 +1,33 @@
 from __future__ import annotations
 
 # Monomial contains a series of variables and degrees, but not a coefficient
-# Monomial is a dictionary, with keys representing variables, and values representing degrees
+# Monomial is internally structured as a dictionary, with keys representing variables, and values representing degrees
+# Monomial is immutable
 class Monomial:
+    _exponents: dict[str, int]
+
     def __init__(self, exponents: dict[str, int] | None = None) -> None:
+        if exponents is None:
+            exponents = {}
+
+        # Clean (remove zero entries) on init
+        self._exponents = {
+            key : value
+            for key, value in exponents.items()
+            if value != 0
+        }
 
         # Data validation - keys must be variables (lowercase str), values must be integers
+        # PLACEHOLDER
 
-        self._exponents = exponents.copy() if exponents is not None else {}
+    # NOTE: __add__, __sub__, __neg__, __setitem__ not implemented for architectural reasons
 
-    # NOTE: __add__, __sub__, and __neg__ not implemented for architectural reasons
+    def __hash__(self) -> int:
+        return hash(frozenset(self._exponents.items()))
 
     # Returns a variable's degree
     def __getitem__(self, key: str) -> int:
         return self._exponents.get(key, 0)
-
-    # Sets a variable's degree
-    def __setitem__(self, key: str, value: int) -> none:
-        self._exponents[key] = value
 
     def __repr__(self) -> str:
         return f"Monomial({self._exponents!r})"
@@ -41,7 +51,7 @@ class Monomial:
                 self._exponents.get(key, 0)
                 + other._exponents.get(key, 0)
             )
-        return Monomial(result_data).clean()
+        return Monomial(result_data)
 
     def __rmul__(self, other: object) -> Monomial:
         return self * other
@@ -59,12 +69,6 @@ class Monomial:
         # TBD handle empty monos?
 
     # Methods
-
-    # Remove zero entries
-    def clean(self) -> None:
-        for key in list(self._exponents):
-            if self._exponents[key] == 0:
-                del self._exponents[key]
 
     def reciprocal(self) -> Monomial:
         result_data = {
@@ -114,10 +118,10 @@ class Polynomial:
             return NotImplemented
 
         result_data = {}
-        for key in self._exponents.keys() | other._exponents.keys():
+        for key in self._coef.keys() | other._coef.keys():
             result_data[key] = (
-                self._exponents.get(key, 0)
-                + other._exponents.get(key, 0)
+                self._coef.get(key, 0)
+                + other._coef.get(key, 0)
             )
         return Polynomial(result_data).clean()
 
