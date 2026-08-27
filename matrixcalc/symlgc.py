@@ -116,7 +116,7 @@ class Polynomial:
             key=lambda m: m.total_degree,
             reverse=True
         )
-        terms = []
+        terms: list[str] = []
         # Combine each coef with each monomial
         for i, mono in enumerate(sorted_monomials):
             # Case 1: Coefficient of the constant term
@@ -151,7 +151,7 @@ class Polynomial:
         if isinstance(other, (int, float)):
             other = Polynomial.from_number(other)
 
-        result_data = {}
+        result_data: dict[Monomial, int | float] = {}
         for key in self._coef.keys() | other._coef.keys():
             result_data[key] = (
                 self._coef.get(key, 0)
@@ -162,22 +162,22 @@ class Polynomial:
         return result
 
     def __sub__(self, other):
-        # Placeholder
+        pass
 
     def __mul__(self, other):
-        # Placeholder
+        pass
 
     def __rmul__(self, other):
-        # Placeholder
+        pass
             
     # Needed?
     def __truediv__(self, scalar):
-        # Placeholder
+        pass
 
     def __neg__(self):
         result_data = {
             key: -value
-            for key, value in self._coef
+            for key, value in self._coef.items()
         }
         return Polynomial(result_data)
 
