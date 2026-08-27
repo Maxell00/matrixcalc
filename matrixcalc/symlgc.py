@@ -51,7 +51,7 @@ class Monomial:
         if not isinstance(other, Monomial):
             return NotImplemented
 
-        result_data = {}
+        result_data: dict[str, int] = {}
         for key in self._exponents.keys() | other._exponents.keys():
             result_data[key] = (
                 self._exponents.get(key, 0)
@@ -69,10 +69,6 @@ class Monomial:
         return self * other.reciprocal()
     
     # Class Methods
-    @classmethod
-    def zero(cls) -> Monomial:
-        # PLACEHOLDER
-        # TBD handle empty monos?
 
     # Methods
 
@@ -85,13 +81,16 @@ class Monomial:
 
 # A Polynomial stores only nonzero coefficients, with integer exponents ≥ 0
 # Its internal mapping is normalized so that each exponent occurs exactly once.
-
+# Polynomial always contains a key Monomial() representing non-variable coefficient
 class Polynomial:
+    _coef: dict[Monomial, int | float]
+
     # Keys represent terms and are either a Monomial or 1
     # Values represent coefficients and are numbers
     # Internal _coef dict should always contain a key 1
-    def __init__(self, coef: dict[Monomial | int, int | float]) -> None:
+    def __init__(self, coef: dict[Monomial, int | float]) -> None:
         # DATA VALIDATION
+        # coef must contain Monomial()
         # PLACEHOLDER
 
         self._coef = coef.copy()
@@ -155,18 +154,18 @@ class Polynomial:
 
     @classmethod
     def from_number(cls, num: int | float) -> Polynomial:
-        return cls({1: num})
+        return cls({Monomial(): num})
 
     @classmethod
     def zero(cls) -> Polynomial:
-        return cls({1: 0})
+        return cls({Monomial(): 0})
 
     # Methods
 
     # Remove zero entries
     def clean(self) -> None:
         for key in list(self._coef):
-            if self[key] == 0 and key != 1:
+            if self[key] == 0 and key != Monomial():
                 del self._coef[key]
 
 
