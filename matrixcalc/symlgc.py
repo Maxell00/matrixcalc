@@ -1,14 +1,24 @@
 from __future__ import annotations
 
-# Monomial contains a series of variables and degrees, but not a coefficient
-# Monomial is internally structured as a dictionary, with keys representing variables, and values representing degrees
-# Monomial is immutable
 class Monomial:
+    """Represents a product of variables raised to integer powers.
+
+    A Monomial does not contain a coefficient. It is internally represented
+    as a mapping from variable names to integer exponents and is
+    immutable after initialization.
+    """
     _exponents: dict[str, int]
 
     def __init__(self, exponents: dict[str, int] | None = None) -> None:
         if exponents is None:
             exponents = {}
+
+        # Data validation - keys must be variables (1 lowercase letter)
+        if not all(
+            len(key) == 1 and key.isascii() and key.islower()
+            for key in exponents
+        ):
+            raise ValueError("Variables must be single lowercase letters")
 
         # Clean (remove zero entries) on init
         self._exponents = {
@@ -17,8 +27,6 @@ class Monomial:
             if value != 0
         }
 
-        # Data validation - keys must be variables (lowercase str), values must be integers
-        # PLACEHOLDER
 
     # NOTE: __add__, __sub__, __neg__, __setitem__ not implemented for architectural reasons
 
@@ -68,8 +76,6 @@ class Monomial:
 
         return self * other.reciprocal()
     
-    # Class Methods
-
     # Methods
 
     def reciprocal(self) -> Monomial:
