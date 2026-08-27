@@ -79,15 +79,13 @@ class Monomial:
         }
         return Monomial(result_data)
 
-# A Polynomial stores only nonzero coefficients, with integer exponents ≥ 0
-# Its internal mapping is normalized so that each exponent occurs exactly once.
-# Polynomial always contains a key Monomial() representing non-variable coefficient
 class Polynomial:
+    """Stores a normalized mapping of Monomials to numeric coefficients.
+
+    Monomial() represents the non-variable (constant) term.
+    """
     _coef: dict[Monomial, int | float]
 
-    # Keys represent terms and are either a Monomial or 1
-    # Values represent coefficients and are numbers
-    # Internal _coef dict should always contain a key 1
     def __init__(self, coef: dict[Monomial, int | float]) -> None:
         # DATA VALIDATION
         # coef must contain Monomial()
@@ -108,19 +106,18 @@ class Polynomial:
 
     def __str__(self):
         # Implementation TBD
+        return
 
-    def __eq__(self, other: Object) -> bool:
-        if self._coef == self.zero():
-            return other == 0
-        if not isinstance(other, Polynomial):
-            return False
-        return self._coef == other._coef
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, (int, float)):
+            return self._coef == Polynomial.from_number(other)._coef
+        if isinstance(other, Polynomial):
+            return self._coef == other._coef
+        return False
 
     def __add__(self, other: Polynomial | int | float) -> Polynomial:
-        if isinstance(other, (int, float):
-            other = Polynomial(format_bare_num(other))
-        elif not isinstance(other, Polynomial):
-            return NotImplemented
+        if isinstance(other, (int, float)):
+            other = Polynomial.from_number(other)
 
         result_data = {}
         for key in self._coef.keys() | other._coef.keys():
@@ -128,7 +125,9 @@ class Polynomial:
                 self._coef.get(key, 0)
                 + other._coef.get(key, 0)
             )
-        return Polynomial(result_data).clean()
+        result = Polynomial(result_data)
+        result.clean()
+        return result
 
     def __sub__(self, other):
         # Placeholder
@@ -167,6 +166,4 @@ class Polynomial:
         for key in list(self._coef):
             if self[key] == 0 and key != Monomial():
                 del self._coef[key]
-
-
 
