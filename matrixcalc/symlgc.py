@@ -33,7 +33,13 @@ class Monomial:
         return f"Monomial({self._exponents!r})"
 
     def __str__(self) -> str:
-        # Have to decide how to make exponents look nice in terminal-friendly way
+        if not self._exponents:
+            return "1"
+
+        return "".join(
+            f"{key}{value if value != 1 else ''}"
+            for key, value in sorted(self._exponents.items())
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Monomial):
