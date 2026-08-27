@@ -79,6 +79,11 @@ class Monomial:
         }
         return Monomial(result_data)
 
+    # Properties
+    @property
+    def total_degree(self) -> int:
+        return sum(self._exponents.values())
+
 class Polynomial:
     """Stores a normalized mapping of Monomials to numeric coefficients.
 
@@ -104,9 +109,36 @@ class Polynomial:
     def __repr__(self) -> str:
         return f"Polynomial({self._coef!r})"
 
-    def __str__(self):
-        # Implementation TBD
-        return
+    def __str__(self) -> str:
+        # Sort by total degree of each monomial
+        sorted_monomials = sorted(
+            self._coef,
+            key=lambda m: m.total_degree,
+            reverse=True
+        )
+        terms = []
+        # Combine each coef with each monomial
+        for i, mono in enumerate(sorted_monomials):
+            # Case 1: Coefficient of the constant term
+            if mono == Monomial():
+                abscoefmono = str(abs(self._coef[mono]))
+            # Case 2: Absolute value of coefficient is 1
+            elif abs(self._coef[mono]) == 1:
+                abscoefmono = str(mono)
+            # Case 3: All other conditions
+            else:
+                abscoefmono = f"{abs(self._coef[mono])}{mono}"
+
+            if i == 0:
+                if self._coef[mono] < 0:
+                    terms.append(f"-{abscoefmono}")
+                else:
+                    terms.append(f"{abscoefmono}")
+            else:
+                joiner = " - " if self._coef[mono] < 0 else " + "
+                terms.append(f"{joiner}{abscoefmono}")
+        # Combine terms
+        return "".join(terms)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, (int, float)):
