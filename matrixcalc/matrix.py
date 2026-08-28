@@ -1,10 +1,11 @@
 from __future__ import annotations
 from collections.abc import Sequence
+from .symlgc import Polynomial
 
 class Matrix:
-    _data: list[list[float | int]]
+    _data: list[list[Polynomial | float | int]]
 
-    def __init__(self, data: Sequence[Sequence[int|float]]) -> None:
+    def __init__(self, data: Sequence[Sequence[Polynomial | int | float]]) -> None:
 
         ## DATA VALIDATION
         if not data:
@@ -27,11 +28,11 @@ class Matrix:
         self._data = [list(row) for row in data]
 
     # Dunder
-    def __getitem__(self, index: tuple[int, int]) -> int | float:
+    def __getitem__(self, index: tuple[int, int]) -> Polynomial | int | float:
         row, col = index
         return self._data[row][col]
 
-    def __setitem__(self, index: tuple[int, int], value: int | float) -> None:
+    def __setitem__(self, index: tuple[int, int], value: Polynomial | int | float) -> None:
         row, col = index
         self._data[row][col] = value
 
@@ -93,9 +94,9 @@ class Matrix:
 
         return Matrix(data)
 
-    def __mul__(self, scalar: int | float) -> Matrix:
-        if not isinstance(scalar, (int, float)):
-            raise TypeError("Scalar must be int or float")
+    def __mul__(self, scalar: Polynomial | int | float) -> Matrix:
+        if not isinstance(scalar, (Polynomial | int, float)):
+            raise TypeError("Scalar must be Polynomial, int or float")
 
         data = [
             [
@@ -107,7 +108,7 @@ class Matrix:
 
         return Matrix(data)
 
-    def __rmul__(self, scalar: int | float) -> Matrix:
+    def __rmul__(self, scalar: Polynomial | int | float) -> Matrix:
         return self * scalar
 
     def __matmul__(self, other: Matrix) -> Matrix:
@@ -132,7 +133,7 @@ class Matrix:
 
     def __truediv__(self, scalar: int | float) -> Matrix:
         if not isinstance(scalar, (int,float)):
-            raise TypeError("Matrix must be divided by a scalar")
+            raise TypeError("Matrix must be divided by an int or float")
 
         return self * (1 / scalar)
 
@@ -207,7 +208,7 @@ class Matrix:
         return Matrix(data)
 
     # Methods
-    def to_list(self) -> list[list[int | float]]:
+    def to_list(self) -> list[list[Polynomial | int | float]]:
         return [row[:] for row in self._data]
 
     def copy(self) -> Matrix:
