@@ -164,7 +164,7 @@ class Matrix:
         return Matrix(data)
 
     @property
-    def trace(self) -> int | float:
+    def trace(self) -> Polynomial | int | float:
         if self.cols != self.rows:
             raise ValueError("Trace not defined for non-square matrices")	
 
