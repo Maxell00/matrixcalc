@@ -166,10 +166,10 @@ class Polynomial:
         result.clean()
         return result
 
-    def __sub__(self, other):
-        pass
+    def __sub__(self, other: Polynomial | int | float) -> Polynomial:
+        return self + -other
 
-    def __mul__(self, other: object):
+    def __mul__(self, other: object) -> Polynomial:
         if isinstance(other, (int, float)):
             result_data = {
                 mono: coef * other
@@ -186,14 +186,17 @@ class Polynomial:
         else:
             return NotImplemented
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: object) -> Polynomial:
         return self * other
             
-    # Needed?
-    def __truediv__(self, scalar):
-        pass
+    # Note: Only scalar division currently supported
+    def __truediv__(self, scalar: int | float) -> Polynomial:
+        return Polynomial({
+            mono: coef / scalar
+            for mono, coef in self._coef.items()
+        })
 
-    def __neg__(self):
+    def __neg__(self) -> Polynomial:
         result_data = {
             key: -value
             for key, value in self._coef.items()
