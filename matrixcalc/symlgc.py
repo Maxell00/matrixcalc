@@ -176,13 +176,18 @@ class Polynomial:
                 for mono, coef in self._coef.items()
             }
             return Polynomial(result_data)
-        elif isintance(other, Polynomial):
-            combined_terms: list[Polynomial] = [
-                self._multiply_terms(mono1, coef1, mono2, coef2)
-                for mono1, coef1 in self._coef.items()
-                for mono2, coef2 in other._coef.items()
-            ]
-            return sum(combined_terms)
+        elif isinstance(other, Polynomial):
+            result_data: dict[Monomial, int | float] = {}
+
+            for mono1, coef1 in self._coef.items():
+                for mono2, coef2 in other._coef.items():
+                    mono, coef = self._multiply_terms(
+                        mono1, coef1, mono2, coef2
+                    )
+                    # If mono already exists, add coef to its value
+                    result_data[mono] = result_data.get(mono, 0) + coef
+
+            return Polynomial(result_data)
         else:
             return NotImplemented
 
