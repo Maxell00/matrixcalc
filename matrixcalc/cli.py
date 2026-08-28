@@ -1,7 +1,9 @@
 import ast
+import re
 from pathlib import Path
 from matrixcalc.matrix import Matrix
 from matrixcalc.workspace import Workspace
+from matrixcalc.symlgc import Monomial, Polynomial
 
 # TODO: Add autosave-load functionality, handle on-off with flag, set related constant (if necessary)
 
@@ -31,6 +33,42 @@ def parse_number(text: str) -> int | float:
 
     raise ValueError(f"Invalid number: {text}")
 
+# NOTE: Only supports entry of polynomials with positive exponents
+# Even though underlying data structure can support negative exponents
+def parse_polynomial(text: str) -> Polynomial:
+    result_data
+
+    terms = re.findall(r"[+-]?(?:\d+)?(?:[a-z]\d*)+", text)
+    # Ensure first term has an explicit sign
+    if terms[0][0] not in "+-":
+        terms[0] = "+" + terms[0]
+    for term in terms:
+        is_negative = term[0] == "-"
+        term = term[1:]
+
+        constant_coef = 1
+        if term[0].isdigit():
+            match = re.match(r"\d+", term)
+            if match:
+                constant_coef = int(match.group())
+
+        variables = re.findall(r"[a-z]\d*", term)
+        mono = varlist_to_monomial(variables) 
+
+def varlist_to_monomial(varlist: list[str]) -> Monomial:
+    result_data: dict[str, int] = {}
+    for variable in varlist:
+        letter = variable[0]
+        if letter in result_data:
+            raise ValueError("Monomial cannot have repeated variables")
+        exponent = 1
+
+        if len(variable) > 1:
+            exponent = int(variable[1:])
+        result_data[letter] = exponent
+
+    return Monomial(result_data)
+        
 def parse_matrix(text: str) -> Matrix:
     data = ast.literal_eval(text)
     return Matrix(data)
