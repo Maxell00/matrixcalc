@@ -56,7 +56,7 @@ def resolve_operand(operand: str, workspace: Workspace) -> int | float | Matrix:
     return parse_number(operand)
 
 def update_last_workspace(workspace: Workspace) -> None:
-    LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
+    _ = LAST_WORKSPACE.write_text(workspace.name, encoding="utf-8")
 
 def confirm(prompt: str) -> bool:
     response = input(f"{prompt} [y/N] ").strip().lower()
