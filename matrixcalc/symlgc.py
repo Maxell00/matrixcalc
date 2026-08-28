@@ -166,7 +166,13 @@ class Polynomial:
         result.clean()
         return result
 
+    def __radd__(self, other: Polynomial | int | float) -> Polynomial:
+        return self + other
+
     def __sub__(self, other: Polynomial | int | float) -> Polynomial:
+        return self + -other
+
+    def __rsub__(self, other: Polynomial | int | float) -> Polynomial:
         return self + -other
 
     def __mul__(self, other: object) -> Polynomial:
