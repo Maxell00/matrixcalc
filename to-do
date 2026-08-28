@@ -8,6 +8,9 @@
 
 --- PRIORITY 2 ---
 
+- mapping behavior for polynomial init
+    - dict[Monomial, int] not a subtype of dict[Monomial, int | float]
+
 - add symbolic logic
     - independant polynomial engine in own file?
 
