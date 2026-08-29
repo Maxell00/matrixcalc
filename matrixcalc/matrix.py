@@ -2,6 +2,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 from .symlgc import Polynomial
 
+MatrixValue = Polynomial | int | float
+MatrixData = PolynomialData | int | float
+
 class Matrix:
     _data: list[list[Polynomial | float | int]]
 
@@ -207,9 +210,19 @@ class Matrix:
 
         return Matrix(data)
 
+    def from_list(cls, datalist : list[list[MatrixData]]) -> Matrix:
+        pass
+        #WIP WIP WIP
+
     # Methods
-    def to_list(self) -> list[list[Polynomial | int | float]]:
-        return [row[:] for row in self._data]
+    def to_list(self) -> list[list[MatrixData]]:
+        return [
+            [
+                value.to_dict() if isinstance(value, Polynomial) else value
+                for value in row
+            ]
+            for row in self._data
+        ]
 
     def copy(self) -> Matrix:
         return Matrix(self.to_list())

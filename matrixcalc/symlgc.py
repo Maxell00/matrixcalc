@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TypedDict
+from typing import TypedDict, Literal
 
 class Monomial:
     """Represents a product of variables raised to integer powers.
@@ -261,7 +261,10 @@ class Polynomial:
             }
             for mono, value in self._coef.items()
         ]
-        return {"terms": term_list}
+        return {
+            "__type__": "Polynomial",
+            "terms": term_list,
+        }
 
     # Remove zero entries
     def clean(self) -> None:
@@ -284,4 +287,5 @@ class TermData(TypedDict):
     coefficient: int | float
 
 class PolynomialData(TypedDict):
+    __type__: Literal("Polynomial")
     terms: list[TermData]
