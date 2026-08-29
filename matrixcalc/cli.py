@@ -22,6 +22,12 @@ OPERATIONS = {
     "/": lambda a, b: a / b,
 }
 
+def parse_value(text: str) -> Polynomial | int | float:
+    try:
+        return parse_number(text)
+    except ValueError:
+        return parse_polynomial(text)
+
 def parse_number(text: str) -> int | float:
     try:
         value = ast.literal_eval(text)
@@ -88,9 +94,9 @@ def parse_matrix(text: str) -> Matrix:
 
 def parse_quick_matrix(text: str) -> Matrix:
     # Takes 'quick matrix input' and returns Matrix object
-    # Currently assumed all values are numbers
+    # All values must be numbers or Polynomials
     data = [
-        [parse_number(value) for value in row.split()]
+        [parse_value(value) for value in row.split()]
         for row in text.split(";")
     ]
 
@@ -100,6 +106,7 @@ def parse_operation(delimiter: str, command: str) -> tuple[str, str]:
     left, right = command.split(delimiter, 1)
     return left.strip(), right.strip()
 
+# TODO Verify, does this need to handle Polynomial?
 # Resolve an operand string from CLI into a number or Matrix
 def resolve_operand(operand: str, workspace: Workspace) -> int | float | Matrix:
     if workspace.contains(operand):
