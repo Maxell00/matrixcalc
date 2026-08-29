@@ -36,9 +36,11 @@ def parse_number(text: str) -> int | float:
 # NOTE: Only supports entry of polynomials with positive exponents
 # Even though underlying data structure can support negative exponents
 def parse_polynomial(text: str) -> Polynomial:
-    result_data
+    result_data: dict[Monomial, int | float] = {}
 
+    # Split into terms in the form "-2x2yz"
     terms = re.findall(r"[+-]?(?:\d+)?(?:[a-z]\d*)+", text)
+
     # Ensure first term has an explicit sign
     if terms[0][0] not in "+-":
         terms[0] = "+" + terms[0]
@@ -46,14 +48,25 @@ def parse_polynomial(text: str) -> Polynomial:
         is_negative = term[0] == "-"
         term = term[1:]
 
+        # Find constant_coef
         constant_coef = 1
         if term[0].isdigit():
             match = re.match(r"\d+", term)
             if match:
                 constant_coef = int(match.group())
+        if is_negative:
+            constant_coef = -constant_coef
 
+        # Find monomial
         variables = re.findall(r"[a-z]\d*", term)
         mono = varlist_to_monomial(variables) 
+
+        # Assign to internal dict
+        if mono in result_data:
+            raise ValueError("Polynomial cannot have repeated Monomials")
+        result_data[mono] = constant_coef
+
+    return Polynomial(result_data)
 
 def varlist_to_monomial(varlist: list[str]) -> Monomial:
     result_data: dict[str, int] = {}
