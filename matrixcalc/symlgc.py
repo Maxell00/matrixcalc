@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import TypedDict
 
 class Monomial:
     """Represents a product of variables raised to integer powers.
@@ -233,9 +234,8 @@ class Polynomial:
 
     # Class Methods
 
-    # TODO: More sophisticated typing
     @classmethod
-    def from_dict(cls, dictionary: dict) -> Polynomial:
+    def from_dict(cls, dictionary: PolynomialData) -> Polynomial:
         data: dict[Monomial, int | float] = {}
         for term in dictionary["terms"]:
             mono = Monomial.from_dict(term["monomial"])
@@ -253,8 +253,7 @@ class Polynomial:
 
     # Methods
    
-    # TODO: More sophisticated typing
-    def to_dict(self) -> dict:
+    def to_dict(self) -> PolynomialData:
         term_list = [
             {
                 "monomial": mono.to_dict(),
@@ -280,3 +279,9 @@ class Polynomial:
     ) -> tuple[Monomial, int | float]:
         return mono1 * mono2, coef1 * coef2
 
+class TermData(TypedDict):
+    monomial: dict[str, int]
+    coefficient: int | float
+
+class PolynomialData(TypedDict):
+    terms: list[TermData]
