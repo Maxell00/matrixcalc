@@ -6,20 +6,27 @@
 
 - cli add 'new ' command to create and rename in one step
 
+- cli swap file to prevent corrupted workspace save
+- cli delete workspace command
+
 --- PRIORITY 2 ---
+
+- cli consistent whitespace when printing
+    - e.g. assignment has 0 lines, addition has 1 line
+
+- cli enforce matrix names as single uppercase letters
+    - autocorrect lowercase single letters to uppercase
+
+- matrix str improve spacing for lopsided column sizes
 
 - mapping behavior for polynomial init
     - dict[Monomial, int] not a subtype of dict[Monomial, int | float]
-
-- add symbolic logic
-    - independant polynomial engine in own file?
 
 - cli support set_cell with non int
 
 - add deep fraction support
     - which levels of abstraction?
-
-- cli make listall and list alphabetical
+	- Matrix, Monomial, Polynomial + cli
 
 - cli autosave / autoload
     - autoload functionality with .last workspace file
@@ -30,6 +37,13 @@
 	    - --new (same as nal?)
 
 - cli help command
+
+--- LOW PRIORITY ---
+
+- cli ws should alphabetize filenames
+- cli make listall and list alphabetical
+
+--- COMPLETE ---
 
 x fix print spacing for 1+ char cells
 
@@ -44,6 +58,9 @@ x cli list (list labels AND list label + value)
 x cli list loadable files (ws)
 x cli add feedback with saving, loading, etc
 x cli save load
+
+x add symbolic logic
+    x independant polynomial engine in own file
 
 --- DEBUG ---
 
