@@ -76,6 +76,12 @@ class Monomial:
 
         return self * other.reciprocal()
     
+    # Class Methods
+
+    @classmethod
+    def from_dict(cls, dictionary: dict[str, int]) -> Monomial:
+        return cls(dictionary)
+
     # Methods
 
     def reciprocal(self) -> Monomial:
@@ -85,7 +91,11 @@ class Monomial:
         }
         return Monomial(result_data)
 
+    def to_dict(self) -> dict[str, int]:
+        return self._exponents.copy()
+
     # Properties
+
     @property
     def total_degree(self) -> int:
         return sum(self._exponents.values())
@@ -223,6 +233,16 @@ class Polynomial:
 
     # Class Methods
 
+    # TODO: More sophisticated typing
+    @classmethod
+    def from_dict(cls, dictionary: dict) -> Polynomial:
+        data: dict[Monomial, int | float] = {}
+        for term in dictionary["terms"]:
+            mono = Monomial.from_dict(term["monomial"])
+            coef = term["coefficient"]
+            data[mono] = coef
+        return cls(data)
+
     @classmethod
     def from_number(cls, num: int | float) -> Polynomial:
         return cls({Monomial(): num})
@@ -232,6 +252,17 @@ class Polynomial:
         return cls({Monomial(): 0})
 
     # Methods
+   
+    # TODO: More sophisticated typing
+    def to_dict(self) -> dict:
+        term_list = [
+            {
+                "monomial": mono.to_dict(),
+                "coefficient": value,
+            }
+            for mono, value in self._coef.items()
+        ]
+        return {"terms": term_list}
 
     # Remove zero entries
     def clean(self) -> None:
