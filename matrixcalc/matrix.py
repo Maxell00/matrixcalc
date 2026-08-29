@@ -43,7 +43,7 @@ class Matrix:
         width = self.max_cell_length
 
         return "\n".join(
-            " ".join(f"{value:>{width}}" for value in row)
+            " ".join(f"{str(value):>{width}}" for value in row)
             for row in self._data
         )
 

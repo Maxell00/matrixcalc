@@ -142,6 +142,13 @@ class Polynomial:
             else:
                 joiner = " - " if self._coef[mono] < 0 else " + "
                 terms.append(f"{joiner}{abscoefmono}")
+
+        # Remove trailing zero
+        try:
+            terms.remove(" + 0")
+        except ValueError:
+            pass
+
         # Combine terms
         return "".join(terms)
 
