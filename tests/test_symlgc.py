@@ -320,3 +320,90 @@ def test_polynomial_multiplication_combines_like_terms():
         Monomial({"x": 2}): 1,
         Monomial(): -1,
     })
+
+# ---------------------------------------------------------------------------
+# Monomial serialization
+# ---------------------------------------------------------------------------
+
+def test_monomial_to_dict():
+    mono = Monomial({"x": 2, "y": 3})
+
+    assert mono.to_dict() == {"x": 2, "y": 3}
+
+
+def test_monomial_from_dict():
+    data = {"x": 2, "y": 3}
+
+    assert Monomial.from_dict(data) == Monomial({"x": 2, "y": 3})
+
+
+def test_monomial_serialization_round_trip():
+    mono = Monomial({"x": 2, "y": 3})
+
+    assert Monomial.from_dict(mono.to_dict()) == mono
+
+
+# ---------------------------------------------------------------------------
+# Polynomial serialization
+# ---------------------------------------------------------------------------
+
+def test_polynomial_to_dict():
+    poly = Polynomial({
+        Monomial({"x": 2}): 3,
+        Monomial({"y": 1}): -4,
+        Monomial(): 7,
+    })
+
+    assert poly.to_dict() == {
+        "terms": [
+            {
+                "monomial": {"x": 2},
+                "coefficient": 3,
+            },
+            {
+                "monomial": {"y": 1},
+                "coefficient": -4,
+            },
+            {
+                "monomial": {},
+                "coefficient": 7,
+            },
+        ]
+    }
+
+
+def test_polynomial_from_dict():
+    data = {
+        "terms": [
+            {
+                "monomial": {"x": 2},
+                "coefficient": 3,
+            },
+            {
+                "monomial": {"y": 1},
+                "coefficient": -4,
+            },
+            {
+                "monomial": {},
+                "coefficient": 7,
+            },
+        ]
+    }
+
+    expected = Polynomial({
+        Monomial({"x": 2}): 3,
+        Monomial({"y": 1}): -4,
+        Monomial(): 7,
+    })
+
+    assert Polynomial.from_dict(data) == expected
+
+
+def test_polynomial_serialization_round_trip():
+    poly = Polynomial({
+        Monomial({"x": 2, "y": 1}): 3,
+        Monomial({"z": 4}): -2,
+        Monomial(): 5,
+    })
+
+    assert Polynomial.from_dict(poly.to_dict()) == poly
