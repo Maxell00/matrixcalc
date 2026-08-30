@@ -1,22 +1,18 @@
---- IMPLEMENTATION ---
+--- PRIORITY 1 ---
 
+- workspace and symlgc runtime type enforcement
+- make sure all funcs raise errors where necessary
 - cli error handling everywhere
 
-- cli add 'new ' command to create and rename in one step
-
 - cli delete workspace command
+- cli help command
 
 --- PRIORITY 2 ---
 
 - cli consistent whitespace when printing
     - e.g. assignment has 0 lines, addition has 1 line
 
-x cli enforce matrix names as single uppercase letters
-    x autocorrect lowercase single letters to uppercase
-
 - matrix str improve spacing for lopsided column sizes
-
-- cli support set_cell with non int
 
 - add deep fraction support
     - which levels of abstraction?
@@ -30,17 +26,19 @@ x cli enforce matrix names as single uppercase letters
 	    - --no-autosave / -nas
 	    - --new (same as nal?)
 
-- cli help command
 
 --- LOW PRIORITY ---
-
-x cli ws should alphabetize filenames
-x cli make listall and list alphabetical
 
 --- COMPLETE ---
 
 x fix print spacing for 1+ char cells
 
+x cli support set_cell with non int
+x cli add 'new ' command to create and rename in one step
+x cli ws should alphabetize filenames
+x cli make listall and list alphabetical
+x cli enforce matrix names as single uppercase letters
+    x autocorrect lowercase single letters to uppercase
 x cli swap file to prevent corrupted workspace save
 x cli set cell value (implemented in workspace already)
 x cli add newlines after print commands for legibility
@@ -68,9 +66,12 @@ x add symbolic logic
 --- LATER --- 
 
 - start gui
+    - experiment with 'textual' python
 - determinant logic
 
 --- TESTING --- 
+
+- make sure everthing still stable...
 
 x save/load in live cli
 
