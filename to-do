@@ -6,7 +6,6 @@
 
 - cli add 'new ' command to create and rename in one step
 
-- cli swap file to prevent corrupted workspace save
 - cli delete workspace command
 
 --- PRIORITY 2 ---
@@ -47,6 +46,7 @@
 
 x fix print spacing for 1+ char cells
 
+x cli swap file to prevent corrupted workspace save
 x cli set cell value (implemented in workspace already)
 x cli add newlines after print commands for legibility
 x cli multiple commands in sequence (use | perhaps)
