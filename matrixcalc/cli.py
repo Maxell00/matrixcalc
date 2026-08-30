@@ -1,7 +1,7 @@
 import ast
 import re
 from pathlib import Path
-from matrixcalc.matrix import Matrix, MatrixValue
+from matrixcalc.matrix import Matrix, MatrixCellValue
 from matrixcalc.workspace import Workspace
 from matrixcalc.symlgc import Monomial, Polynomial
 from collections.abc import Callable
@@ -19,7 +19,7 @@ LAST_WORKSPACE = WORKSPACE_DIR / ".last_workspace"
 # pyright: reportExplicitAny=false
 # pyright: reportAny=false
 
-Operand = MatrixValue | Matrix
+Operand = MatrixCellValue | Matrix
 Operation = Callable[[Any, Any], Any]
 
 OPERATIONS: dict[str, Operation] = {

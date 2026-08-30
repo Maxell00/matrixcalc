@@ -1,17 +1,25 @@
 from __future__ import annotations
-import ast
+# import ast
+from typing_extensions import override
 from collections.abc import Sequence
 from .symlgc import Polynomial, PolynomialData
 
-# MatrixValue is valid cell type at runtime
-MatrixValue = Polynomial | int | float
-# MatrixData is valid cell type during serialization
-MatrixData = PolynomialData | int | float
+# MatrixCellValue is valid cell type at runtime
+MatrixCellValue = Polynomial | int | float
+# MatrixCellData is valid cell type during serialization
+MatrixCellData = PolynomialData | int | float
+
+# MatrixData is serialized data representing an entire matrix
+MatrixData = list[list[MatrixCellData]]
+
+# pyright: reportUnnecessaryIsInstance=false, reportUnreachable=false
+# Suppress unnecessary-isinstance and unreachable-code diagnostics: Matrix methods
+# intentionally validate runtime argument types because Python does not enforce annotations.
 
 class Matrix:
-    _data: list[list[MatrixValue]]
+    _data: list[list[MatrixCellValue]]
 
-    def __init__(self, data: Sequence[Sequence[MatrixValue]]) -> None:
+    def __init__(self, data: Sequence[Sequence[MatrixCellValue]]) -> None:
 
         ## DATA VALIDATION
         if not data:
@@ -29,23 +37,35 @@ class Matrix:
         if not all(len(row) == cols for row in data):
             raise ValueError("All rows must have same length")
 
+        if not all(
+            isinstance(value, MatrixCellValue)
+            for row in data
+            for value in row
+        ):
+            raise TypeError("All cells must be valid data types")
+
         # Shallow copy data to self._data
-        # NOTE: May affect symbolic logic implementation
         self._data = [list(row) for row in data]
 
     # Dunder
-    def __getitem__(self, index: tuple[int, int]) -> Polynomial | int | float:
+    def __getitem__(self, index: tuple[int, int]) -> MatrixCellValue:
         row, col = index
         return self._data[row][col]
 
-    def __setitem__(self, index: tuple[int, int], value: Polynomial | int | float) -> None:
+    def __setitem__(self, index: tuple[int, int], value: MatrixCellValue) -> None:
+        if not isinstance(value, MatrixCellValue):
+            raise TypeError("Cell is an invalid data type")
+
         row, col = index
         self._data[row][col] = value
 
+    @override
     def __repr__(self) -> str:
         return f"Matrix({self._data!r})"
 
+    @override
     def __str__(self) -> str:
+        # TODO: Add more sophisticated per-column width
         width = self.max_cell_length
 
         return "\n".join(
@@ -53,6 +73,7 @@ class Matrix:
             for row in self._data
         )
 
+    @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Matrix):
             return False
@@ -67,11 +88,11 @@ class Matrix:
         )
 
     def __add__(self, other: Matrix) -> Matrix:
-        if not isinstance(other, Matrix):
-            raise TypeError("Matrix must be added to another matrix")
-
         if self.shape != other.shape:
             raise ValueError("Matrix must be added to matrix of the same shape")
+
+        if not isinstance(other, Matrix):
+            raise TypeError("Matrix must be added to another matrix")
 
         data = [
             [
@@ -83,10 +104,8 @@ class Matrix:
 
         return Matrix(data)
 
+    # TODO: rewrite this compactly using __add__ implentation
     def __sub__(self, other: Matrix) -> Matrix:
-        if not isinstance(other, Matrix):
-            raise TypeError("Matrix must be added to another matrix")
-
         if self.shape != other.shape:
             raise ValueError("Matrix must be added to matrix of the same shape")
 
@@ -100,9 +119,9 @@ class Matrix:
 
         return Matrix(data)
 
-    def __mul__(self, scalar: Polynomial | int | float) -> Matrix:
-        if not isinstance(scalar, (Polynomial | int, float)):
-            raise TypeError("Scalar must be Polynomial, int or float")
+    def __mul__(self, scalar: MatrixCellValue) -> Matrix:
+        if not isinstance(scalar, (MatrixCellValue)):
+            raise TypeError("Invalid scalar type")
 
         data = [
             [
@@ -114,7 +133,7 @@ class Matrix:
 
         return Matrix(data)
 
-    def __rmul__(self, scalar: Polynomial | int | float) -> Matrix:
+    def __rmul__(self, scalar: MatrixCellValue) -> Matrix:
         return self * scalar
 
     def __matmul__(self, other: Matrix) -> Matrix:
@@ -138,7 +157,7 @@ class Matrix:
         return Matrix(data)
 
     def __truediv__(self, scalar: int | float) -> Matrix:
-        if not isinstance(scalar, (int,float)):
+        if not isinstance(scalar, (int | float)):
             raise TypeError("Matrix must be divided by an int or float")
 
         return self * (1 / scalar)
@@ -170,7 +189,7 @@ class Matrix:
         return Matrix(data)
 
     @property
-    def trace(self) -> Polynomial | int | float:
+    def trace(self) -> MatrixCellValue:
         if self.cols != self.rows:
             raise ValueError("Trace not defined for non-square matrices")	
 
@@ -187,6 +206,12 @@ class Matrix:
     # Class Methods
     @classmethod
     def identity(cls, n: int) -> Matrix:
+        if not isinstance(n, int):
+            raise TypeError("Matrix dimension must be an integer")
+
+        if n <= 0:
+            raise ValueError("Matrix dimension must be positive")
+
         data = [
             [
                 1 if row == col else 0
@@ -199,7 +224,6 @@ class Matrix:
 
     @classmethod
     def zeros(cls, rows: int, cols: int) -> Matrix:
-
         if not isinstance(rows, int) or not isinstance(cols, int):
             raise TypeError("Dimensions must be integers")
 
@@ -214,11 +238,11 @@ class Matrix:
         return Matrix(data)
 
     @classmethod
-    def from_list(cls, data_list : list[list[MatrixData]]) -> Matrix:
-        matrix_list: list[list[MatrixValue]] = []
+    def from_list(cls, data : MatrixData) -> Matrix:
+        matrix_list: list[list[MatrixCellValue]] = []
 
-        for row_data in data_list:
-            row: list[MatrixValue] = []
+        for row_data in data:
+            row: list[MatrixCellValue] = []
 
             for cell_data in row_data:
                 if isinstance(cell_data, dict):
@@ -236,7 +260,7 @@ class Matrix:
         return cls(matrix_list)
 
     # Methods
-    def to_list(self) -> list[list[MatrixData]]:
+    def to_list(self) -> MatrixData:
         return [
             [
                 value.to_dict() if isinstance(value, Polynomial) else value
@@ -246,4 +270,4 @@ class Matrix:
         ]
 
     def copy(self) -> Matrix:
-        return Matrix(self.to_list())
+        return Matrix.from_list(self.to_list())

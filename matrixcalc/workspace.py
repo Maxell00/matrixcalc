@@ -4,8 +4,10 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from matrixcalc.matrix import Matrix, MatrixValue
+from matrixcalc.matrix import Matrix, MatrixValue, MatrixData
 from collections.abc import KeysView
+
+WorkspaceData = dict[str: MatrixData]
 
 # Constants
 WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
@@ -13,7 +15,7 @@ WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 def validate_workspace_name(workspace_name: str) -> None:
     if not WORKSPACE_NAME_RE.fullmatch(workspace_name):
         raise ValueError(
-            "Workspace name must be 1–64 characters and contain only "
+            "Workspace name must be 1–64 characters and contain only " +
             "letters, numbers, '-' or '_'; it must start with a letter or number."
         )
 
@@ -25,7 +27,9 @@ def validate_matrix_name(matrix_name: str) -> str:
     return matrix_name.upper()
 
 class Workspace:
+    name: str
     _variables: dict[str, Matrix]
+    dirty: bool
 
     def __init__(self, name: str = "untitled") -> None:
         validate_workspace_name(name)
