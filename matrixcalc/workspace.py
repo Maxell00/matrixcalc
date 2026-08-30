@@ -1,5 +1,7 @@
 from __future__ import annotations
 import json
+import os
+import tempfile
 from pathlib import Path
 from matrixcalc.matrix import Matrix
 from collections.abc import KeysView
@@ -47,20 +49,28 @@ class Workspace:
             self,
             directory: Path,
             *,
-            name: str | None = None
+            name: str | None = None,
         ) -> None:
         if name is None:
             name = self.name
 
-        path = Path(directory) / f"{name}.json"
+        target_path = directory / f"{name}.json"
 
         data = {
             label: matrix.to_list()
             for label, matrix in self._variables.items()
         }
 
-        with path.open("w", encoding="utf-8") as file:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=directory,
+            delete=False,
+        ) as file:
             json.dump(data, file)
+            temp_path = Path(file.name)
+
+        os.replace(temp_path, target_path)
 
         self.dirty = False
 
