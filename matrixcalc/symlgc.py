@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TypedDict, Literal
+from typing_extensions import override
 
 class Monomial:
     """Represents a product of variables raised to integer powers.
@@ -31,6 +32,7 @@ class Monomial:
 
     # NOTE: __add__, __sub__, __neg__, __setitem__ not implemented for architectural reasons
 
+    @override
     def __hash__(self) -> int:
         return hash(frozenset(self._exponents.items()))
 
@@ -38,9 +40,11 @@ class Monomial:
     def __getitem__(self, key: str) -> int:
         return self._exponents.get(key, 0)
 
+    @override
     def __repr__(self) -> str:
         return f"Monomial({self._exponents!r})"
 
+    @override
     def __str__(self) -> str:
         if not self._exponents:
             return "1"
@@ -50,6 +54,7 @@ class Monomial:
             for key, value in sorted(self._exponents.items())
         )
 
+    @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Monomial):
             return False
@@ -122,9 +127,11 @@ class Polynomial:
     def __setitem__(self, key: Monomial, value: int | float) -> None:
         self._coef[key] = value
 
+    @override
     def __repr__(self) -> str:
         return f"Polynomial({self._coef!r})"
 
+    @override
     def __str__(self) -> str:
         # Sort by total degree of each monomial
         sorted_monomials = sorted(
@@ -163,6 +170,7 @@ class Polynomial:
         # Combine terms
         return "".join(terms)
 
+    @override
     def __eq__(self, other: object) -> bool:
         if isinstance(other, (int, float)):
             return self._coef == Polynomial.from_number(other)._coef
@@ -254,7 +262,7 @@ class Polynomial:
     # Methods
    
     def to_dict(self) -> PolynomialData:
-        term_list = [
+        term_list: list[TermData] = [
             {
                 "monomial": mono.to_dict(),
                 "coefficient": value,
@@ -287,5 +295,5 @@ class TermData(TypedDict):
     coefficient: int | float
 
 class PolynomialData(TypedDict):
-    __type__: Literal("Polynomial")
+    __type__: Literal["Polynomial"]
     terms: list[TermData]
