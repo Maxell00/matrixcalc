@@ -80,7 +80,7 @@ class Workspace:
         workspace = cls(name)
 
         for label, matrix_data in data.items():
-            workspace.set(label, Matrix(matrix_data))
+            workspace.set(label, Matrix.from_list(matrix_data))
         workspace.dirty = False
 
         return workspace

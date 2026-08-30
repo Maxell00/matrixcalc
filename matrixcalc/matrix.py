@@ -1,14 +1,17 @@
 from __future__ import annotations
+import ast
 from collections.abc import Sequence
-from .symlgc import Polynomial
+from .symlgc import Polynomial, PolynomialData
 
+# MatrixValue is valid cell type at runtime
 MatrixValue = Polynomial | int | float
+# MatrixData is valid cell type during serialization
 MatrixData = PolynomialData | int | float
 
 class Matrix:
-    _data: list[list[Polynomial | float | int]]
+    _data: list[list[MatrixValue]]
 
-    def __init__(self, data: Sequence[Sequence[Polynomial | int | float]]) -> None:
+    def __init__(self, data: Sequence[Sequence[MatrixValue]]) -> None:
 
         ## DATA VALIDATION
         if not data:
@@ -210,9 +213,27 @@ class Matrix:
 
         return Matrix(data)
 
-    def from_list(cls, datalist : list[list[MatrixData]]) -> Matrix:
-        pass
-        #WIP WIP WIP
+    @classmethod
+    def from_list(cls, data_list : list[list[MatrixData]]) -> Matrix:
+        matrix_list: list[list[MatrixValue]] = []
+
+        for row_data in data_list:
+            row: list[MatrixValue] = []
+
+            for cell_data in row_data:
+                if isinstance(cell_data, dict):
+                    if cell_data.get("__type__") == "Polynomial":
+                        row.append(Polynomial.from_dict(cell_data))
+                    else:
+                        raise ValueError("Unknown dict as cell data")
+                elif isinstance(cell_data, (int, float)):
+                    row.append(cell_data)
+                else:
+                    raise ValueError("Invalid cell data")
+
+            matrix_list.append(row)
+
+        return cls(matrix_list)
 
     # Methods
     def to_list(self) -> list[list[MatrixData]]:
