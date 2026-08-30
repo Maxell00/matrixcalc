@@ -32,7 +32,7 @@ OPERATIONS: dict[str, Operation] = {
 
 # Methods
 
-def parse_value(text: str) -> Polynomial | int | float:
+def parse_value(text: str) -> MatrixCellValue:
     try:
         return parse_number(text)
     except ValueError:
