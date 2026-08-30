@@ -22,6 +22,8 @@ OPERATIONS = {
     "/": lambda a, b: a / b,
 }
 
+# Methods
+
 def parse_value(text: str) -> Polynomial | int | float:
     try:
         return parse_number(text)
@@ -41,6 +43,7 @@ def parse_number(text: str) -> int | float:
 
 # NOTE: Only supports entry of polynomials with positive exponents
 # Even though underlying data structure can support negative exponents
+# TODO: Add internal and user facing format specification
 def parse_polynomial(text: str) -> Polynomial:
     result_data: dict[Monomial, int | float] = {}
 
@@ -121,7 +124,7 @@ def confirm(prompt: str) -> bool:
     return response in ("y", "yes")
 
 def do_command(command: str, active_workspace: Workspace) -> Workspace:
-
+    silent_final_return = False
     # Handle named commands
 
     if command == "name":
@@ -156,8 +159,8 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         )
         name = command[len(prefix):].strip()
 
-        # Validate here or workspace level?
         print(f"Saving as {name}.json... ", end="")
+        # TODO: Add a try to catch name ValueErrors
         active_workspace.save_as(WORKSPACE_DIR, name)
         print("Done.")
 
@@ -176,7 +179,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
                 print(path.stem)
 
     # Rename after prompt
-    if command == "rename":
+    elif command == "rename":
         name = input("Rename: ").strip()
         active_workspace.rename(name)
 
@@ -205,7 +208,11 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         # Quick matrix sytax
         else:
             matrix = parse_quick_matrix(value)
-        active_workspace.set(name, matrix)
+        try:
+            active_workspace.set(name, matrix)
+        except ValueError as e:
+            print(e)
+            # return? need to clarify command flow
         print(matrix)
 
     elif command.startswith("clear ") or command.startswith("clr "):
@@ -279,7 +286,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
                 active_workspace.set(storage_var, result.copy())
             print(f"{result}\n")
         # Unless command is invalid
-        else:
+        elif not silent_final_return:
             print("No valid command")
 
     return active_workspace

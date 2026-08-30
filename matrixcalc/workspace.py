@@ -1,10 +1,28 @@
 from __future__ import annotations
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from matrixcalc.matrix import Matrix
 from collections.abc import KeysView
+
+# Constants
+WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+
+def validate_workspace_name(workspace_name: str) -> None:
+    if not WORKSPACE_NAME_RE.fullmatch(workspace_name):
+        raise ValueError(
+            "Workspace name must be 1–64 characters and contain only "
+            "letters, numbers, '-' or '_'; it must start with a letter or number."
+        )
+
+def validate_matrix_name(matrix_name: str) -> str:
+    if len(matrix_name) != 1:
+        raise ValueError("Matrix name must be 1 character")
+    if not matrix_name.isalpha() or not matrix_name.isascii():
+        raise ValueError("Matrix name must be an ASCII letter")
+    return matrix_name.upper()
 
 class Workspace:
     _variables: dict[str, Matrix]
@@ -23,6 +41,7 @@ class Workspace:
         return self._variables.keys()
 
     def set(self, name: str, value: Matrix) -> None:
+        name = validate_matrix_name(name)
         self._variables[name] = value
         self.dirty = True
 
@@ -53,6 +72,8 @@ class Workspace:
         ) -> None:
         if name is None:
             name = self.name
+
+        validate_workspace_name(name)
 
         target_path = directory / f"{name}.json"
 
