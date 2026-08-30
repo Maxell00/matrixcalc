@@ -2,8 +2,6 @@
 
 - cli error handling everywhere
 
-- cli 'silent' behavior after successful command
-
 - cli add 'new ' command to create and rename in one step
 
 - cli delete workspace command
@@ -13,13 +11,10 @@
 - cli consistent whitespace when printing
     - e.g. assignment has 0 lines, addition has 1 line
 
-- cli enforce matrix names as single uppercase letters
-    - autocorrect lowercase single letters to uppercase
+x cli enforce matrix names as single uppercase letters
+    x autocorrect lowercase single letters to uppercase
 
 - matrix str improve spacing for lopsided column sizes
-
-- mapping behavior for polynomial init
-    - dict[Monomial, int] not a subtype of dict[Monomial, int | float]
 
 - cli support set_cell with non int
 
@@ -39,8 +34,8 @@
 
 --- LOW PRIORITY ---
 
-- cli ws should alphabetize filenames
-- cli make listall and list alphabetical
+x cli ws should alphabetize filenames
+x cli make listall and list alphabetical
 
 --- COMPLETE ---
 
