@@ -4,7 +4,7 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from matrixcalc.matrix import Matrix
+from matrixcalc.matrix import Matrix, MatrixValue
 from collections.abc import KeysView
 
 # Constants
@@ -28,6 +28,7 @@ class Workspace:
     _variables: dict[str, Matrix]
 
     def __init__(self, name: str = "untitled") -> None:
+        validate_workspace_name(name)
         self.name = name
         self._variables = {}
         self.dirty = False
@@ -49,7 +50,7 @@ class Workspace:
         self,
         name: str, 
         index: tuple[int, int], 
-        value: int | float,
+        value: MatrixValue,
     ) -> None:
         self._variables[name][index] = value
         self.dirty = True
