@@ -308,7 +308,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         elif command_is_op(command):
             parts = command.split()
 
-            working_total: MatrixValue | Matrix = resolve_operand(parts[0], active_workspace)
+            working_total: MatrixCellValue | Matrix = resolve_operand(parts[0], active_workspace)
             for i in range(1, len(parts), 2):
                 op_string = parts[i]
                 operation = OPERATIONS[op_string]

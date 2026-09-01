@@ -4,10 +4,11 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from matrixcalc.matrix import Matrix, MatrixValue, MatrixData
+from matrixcalc.matrix import Matrix, MatrixCellValue, MatrixData
 from collections.abc import KeysView
+from typing import cast
 
-WorkspaceData = dict[str: MatrixData]
+WorkspaceData = dict[str, MatrixData]
 
 # Constants
 WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
@@ -54,7 +55,7 @@ class Workspace:
         self,
         name: str, 
         index: tuple[int, int], 
-        value: MatrixValue,
+        value: MatrixCellValue,
     ) -> None:
         self._variables[name][index] = value
         self.dirty = True
@@ -111,7 +112,7 @@ class Workspace:
         path = Path(directory) / f"{name}.json"
         
         with path.open("r", encoding="utf-8") as file:
-            data = json.load(file)
+            data = cast(WorkspaceData, json.load(file))
 
         workspace = cls(name)
 
