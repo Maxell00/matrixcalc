@@ -38,17 +38,17 @@ class Workspace:
         self._variables = {}
         self.dirty = False
 
-    def rename(self, name: str) -> None:
-        # TODO add name validation
-        self.name = name
+    def rename(self, workspace_name: str) -> None:
+        validate_workspace_name(workspace_name)
+        self.name = workspace_name
         self.dirty = True
 
     def labels(self) -> KeysView[str]:
         return self._variables.keys()
 
-    def set(self, name: str, value: Matrix) -> None:
-        name = validate_matrix_name(name)
-        self._variables[name] = value
+    def set(self, matrix_name: str, value: Matrix) -> None:
+        matrix_name = validate_matrix_name(matrix_name)
+        self._variables[matrix_name] = value
         self.dirty = True
 
     def set_cell(
@@ -57,14 +57,18 @@ class Workspace:
         index: tuple[int, int], 
         value: MatrixCellValue,
     ) -> None:
+        # Runtime type validation happens inside matrix set value func
         self._variables[name][index] = value
         self.dirty = True
 
     def get(self, name: str) -> Matrix:
         return self._variables[name]
     
-    def delete(self, name: str) -> None:
-        del self._variables[name]
+    def delete_matrix(self, matrix_name: str) -> None:
+        if matrix_name not in self._variables:
+            raise ValueError(f"Matrix '{matrix_name}' does not exist")
+
+        del self._variables[matrix_name]
         self.dirty = True
 
     def contains(self, name: str) -> bool:
@@ -111,8 +115,11 @@ class Workspace:
     def load(cls, directory: Path, name: str) -> Workspace:
         path = Path(directory) / f"{name}.json"
         
-        with path.open("r", encoding="utf-8") as file:
-            data = cast(WorkspaceData, json.load(file))
+        try:
+            with path.open("r", encoding="utf-8") as file:
+                data = cast(WorkspaceData, json.load(file))
+        except FileNotFoundError:
+            raise ValueError(f"Workspace '{name}' does not exist")
 
         workspace = cls(name)
 

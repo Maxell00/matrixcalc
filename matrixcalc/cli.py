@@ -250,7 +250,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     elif command.startswith("clear ") or command.startswith("clr "):
         name = command.split(maxsplit=1)[1]
         # TODO: Error handling
-        active_workspace.delete(name)
+        active_workspace.delete_matrix(name)
         return active_workspace
 
     elif command in ("clearall", "clear all"):

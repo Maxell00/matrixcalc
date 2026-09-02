@@ -1,11 +1,12 @@
 --- PRIORITY 1 ---
 
+! cli help command
+
 - workspace and symlgc runtime type enforcement
 - make sure all funcs raise errors where necessary
 - cli error handling everywhere
 
 - cli delete workspace command
-- cli help command
 
 --- PRIORITY 2 ---
 
@@ -13,6 +14,8 @@
     - e.g. assignment has 0 lines, addition has 1 line
 
 - matrix str improve spacing for lopsided column sizes
+
+--- LOW PRIORITY ---
 
 - add deep fraction support
     - which levels of abstraction?
@@ -25,9 +28,6 @@
 	    - --no-autoload / -nal
 	    - --no-autosave / -nas
 	    - --new (same as nal?)
-
-
---- LOW PRIORITY ---
 
 --- COMPLETE ---
 
