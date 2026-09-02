@@ -53,6 +53,34 @@ def command_is_op(command: str) -> bool:
     parts = command.split()
     return any(part in OPERATIONS for part in parts)
 
+
+def validate_op(command: str, active_workspace: Workspace) -> None:
+    parts = command.split()
+    is_valid = True
+
+    if len(parts) < 3 or len(parts) % 2 == 0:
+        is_valid = False
+
+    if is_valid:
+        for operand_index in range(0, len(parts), 2):
+            try:
+                _ = resolve_operand(parts[operand_index], active_workspace)
+            except (ValueError, SyntaxError):
+                is_valid = False
+                break
+
+    if is_valid:
+        for operator_index in range(1, len(parts), 2):
+            if parts[operator_index] not in OPERATIONS:
+                is_valid = False
+                break
+
+    if not is_valid:
+        raise ValueError (
+            "Operation must have alternating operand operator syntax\n" +
+            "e.g. A + B - C * 3"
+        )
+
 # NOTE: Only supports entry of polynomials with positive exponents
 # Even though underlying data structure can support negative exponents
 # TODO: Add internal and user facing format specification
@@ -135,6 +163,50 @@ def confirm(prompt: str) -> bool:
     response = input(f"{prompt} [y/N] ").strip().lower()
     return response in ("y", "yes")
 
+# Handles storage, operation, or recall
+# Gets 'result' and then stores or prints outside chain
+# Called by do_command as a helper
+def do_op_command(command:str, active_workspace: Workspace) -> tuple[Workspace, Matrix | None]:
+    result: Matrix | None = None
+
+    # Command is recall
+    if active_workspace.contains(command):
+        result = active_workspace.get(command)
+
+    elif command.startswith("set "):
+        # Split by ' ' delim
+        parts = command.split()
+
+        if len(parts) != 5:
+            raise ValueError("Usage: set NAME ROW COL VALUE")
+
+        # Set name, row, col, value
+        name = parts[1]
+        row = int(parts[2]) - 1
+        col = int(parts[3]) - 1
+        value = parse_value(parts[4])
+
+        active_workspace.set_cell(name, (row, col), value)
+        result = active_workspace.get(name)
+
+    elif command_is_op(command):
+        validate_op(command, active_workspace)
+
+        parts = command.split()
+
+        working_total: MatrixCellValue | Matrix = resolve_operand(parts[0], active_workspace)
+        for i in range(1, len(parts), 2):
+            op_string = parts[i]
+            operation = OPERATIONS[op_string]
+            operand2  = resolve_operand(parts[i + 1], active_workspace)
+            working_total = operation(working_total, operand2)
+        if not isinstance(working_total, Matrix):
+            raise ValueError("Operation did not produce matrix")
+
+        result = working_total
+
+    return active_workspace, result
+
 def do_command(command: str, active_workspace: Workspace) -> Workspace:
 
     # Handle named commands
@@ -145,24 +217,37 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     elif command == "save":
         if active_workspace.name == "untitled":
             name = input("Save as: ").strip()
-            # Validation?
             print(f"Saving as {name}.json... ", end="")
-            active_workspace.save_as(WORKSPACE_DIR, name)
-            print("Done.")
+            try:
+                active_workspace.save_as(WORKSPACE_DIR, name)
+            except ValueError as error:
+                print("ERROR")
+                print(error)
+            else:
+                print("Done")
         else:
             print(f"Saving {active_workspace.name}.json... ", end="")
-            active_workspace.save(WORKSPACE_DIR)
-            print("Done")
+            try:
+                active_workspace.save(WORKSPACE_DIR)
+            except ValueError as error:
+                print("ERROR")
+                print(error)
+            else:
+                print("Done")
 
         return active_workspace
 
     # Save as after prompt
     elif command in ("save as", "saveas"):
         name = input("Save as: ").strip()
-        # Validate here or workspace level?
         print(f"Saving as {name}.json... ", end="")
-        active_workspace.save_as(WORKSPACE_DIR, name)
-        print("Done.")
+        try:
+            active_workspace.save_as(WORKSPACE_DIR, name)
+        except ValueError as error:
+            print("ERROR")
+            print(error)
+        else:
+            print("Done")
 
         return active_workspace
 
@@ -176,9 +261,13 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         name = command[len(prefix):].strip()
 
         print(f"Saving as {name}.json... ", end="")
-        # TODO: Add a try to catch name ValueErrors
-        active_workspace.save_as(WORKSPACE_DIR, name)
-        print("Done.")
+        try:
+            active_workspace.save_as(WORKSPACE_DIR, name)
+        except ValueError as error:
+            print("ERROR")
+            print(error)
+        else:
+            print("Done")
 
         return active_workspace
 
@@ -187,8 +276,13 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
             name = command[len("load "):].strip()
             # Validate here or workspace level?
             print(f"Loading {name}.json... ", end="")
-            active_workspace = active_workspace.load(WORKSPACE_DIR, name)
-            print("Done.")
+            try:
+                active_workspace = active_workspace.load(WORKSPACE_DIR, name)
+            except ValueError as error:
+                print("ERROR")
+                print(error)
+            else:
+                print("Done")
 
         return active_workspace
 
@@ -208,14 +302,21 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     # Rename after prompt
     elif command == "rename":
         name = input("Rename: ").strip()
-        active_workspace.rename(name)
+        try:
+            active_workspace.rename(name)
+        except ValueError as error:
+            print(error)
+
         return active_workspace
 
     # Rename immediately
     elif command.startswith("rename "):
         name = command[len("rename "):].strip()
-        # TODO Validate here or in workspace.py
-        active_workspace.rename(name)
+        try:
+            active_workspace.rename(name)
+        except ValueError as error:
+            print(error)
+
         return active_workspace
 
     elif command in ("list", "ls"):
@@ -231,6 +332,9 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         return active_workspace
 
     # Command is an assignment
+    # TODO: clean up command flow 
+    #       add error handling
+    #       validate user input
     elif "=" in command:
         name, value = parse_operation("=", command)
         # Long matrix syntax
@@ -241,16 +345,18 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
             matrix = parse_quick_matrix(value)
         try:
             active_workspace.set(name, matrix)
-        except ValueError as e:
-            print(e)
+        except ValueError as error:
+            print(error)
             return active_workspace
         print(matrix)
         return active_workspace
 
     elif command.startswith("clear ") or command.startswith("clr "):
         name = command.split(maxsplit=1)[1]
-        # TODO: Error handling
-        active_workspace.delete_matrix(name)
+        try:
+            active_workspace.delete_matrix(name)
+        except ValueError as error:
+            print(error)
         return active_workspace
 
     elif command in ("clearall", "clear all"):
@@ -267,12 +373,12 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     elif command.startswith("new "):
         if not active_workspace.dirty or confirm("Discard unsaved changes and open new workspace?"):
             name = command.split(maxsplit=1)[1]
-            active_workspace = Workspace(name=name)
+            try:
+                active_workspace = Workspace(name=name)
+            except ValueError as error:
+                print(error)
         return active_workspace
 
-    # Command is storage, operation, recall,
-    # set, or invalid
-    # Gets 'result' and then stores or prints outside chain
     else:
         result: Matrix | None = None
 
@@ -281,43 +387,11 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
         if ">>" in command:
             command, storage_var = parse_operation(">>", command)
 
-        # Command is recall
-        if active_workspace.contains(command):
-            result = active_workspace.get(command)
-
-        # Command is set
-        elif command.startswith("set "):
-            # Split by ' ' delim
-            parts = command.split()
-
-            if len(parts) != 5:
-                print("Usage: set NAME ROW COL VALUE")
-                return active_workspace
-            else:
-                # Set name, row, col, value
-                name = parts[1]
-                row = int(parts[2]) - 1
-                col = int(parts[3]) - 1
-                value = parse_value(parts[4])
-
-                active_workspace.set_cell(name, (row, col), value)
-                result = active_workspace.get(name)
-
-        # Assumes operand operator operand etc. syntax
-        # e.g. A + B - C * 3
-        elif command_is_op(command):
-            parts = command.split()
-
-            working_total: MatrixCellValue | Matrix = resolve_operand(parts[0], active_workspace)
-            for i in range(1, len(parts), 2):
-                op_string = parts[i]
-                operation = OPERATIONS[op_string]
-                operand2  = resolve_operand(parts[i + 1], active_workspace)
-                working_total = operation(working_total, operand2)
-            if not isinstance(working_total, Matrix):
-                raise ValueError("Operation did not produce matrix")
-
-            result = working_total
+        try:
+            active_workspace, result = do_op_command(command, active_workspace)
+        except ValueError as error:
+            print(error)
+            return active_workspace
 
         # Print and store result
         if result is not None:
@@ -334,16 +408,16 @@ def main() -> None:
 
     # Auto-load
     # TODO Add option to disable with flag
-    if LAST_WORKSPACE.is_file():
+    if not LAST_WORKSPACE.is_file():
+        print("Autoload failed.")
+    else:
         name = LAST_WORKSPACE.read_text(encoding="utf-8").strip()
         try:
             print(f"Loading {name}.json... ", end="")
-            active_workspace = active_workspace.load(WORKSPACE_DIR, name)
-            print("Done.")
-        except:
+            active_workspace = Workspace.load(WORKSPACE_DIR, name)
+            print("Done")
+        except Exception:
             print("\nAutoload failed.")
-    else:
-        print("Autoload failed.")
 
     # Main REPL
     while True:
