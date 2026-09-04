@@ -1,6 +1,5 @@
 from __future__ import annotations
-from typing import TypedDict, Literal
-from typing_extensions import override
+from typing import TypedDict, Literal, override
 
 class Monomial:
     """Represents a product of variables raised to integer powers.
@@ -199,7 +198,7 @@ class Polynomial:
         return self + -other
 
     def __rsub__(self, other: Polynomial | int | float) -> Polynomial:
-        return self + -other
+        return -self + other
 
     def __mul__(self, other: object) -> Polynomial:
         if isinstance(other, (int, float)):

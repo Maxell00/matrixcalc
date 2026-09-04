@@ -1,6 +1,6 @@
 from __future__ import annotations
 # import ast
-from typing_extensions import override
+from typing import override
 from collections.abc import Sequence
 from .symlgc import Polynomial, PolynomialData
 
@@ -88,11 +88,11 @@ class Matrix:
         )
 
     def __add__(self, other: Matrix) -> Matrix:
-        if self.shape != other.shape:
-            raise ValueError("Matrix must be added to matrix of the same shape")
-
         if not isinstance(other, Matrix):
             raise TypeError("Matrix must be added to another matrix")
+
+        if self.shape != other.shape:
+            raise ValueError("Matrix must be added to matrix of the same shape")
 
         data = [
             [
