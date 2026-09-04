@@ -170,9 +170,12 @@ def do_op_command(command:str, active_workspace: Workspace) -> tuple[Workspace, 
     result: Matrix | None = None
 
     # Command is recall
-    if active_workspace.contains(command):
-        result = active_workspace.get(command)
+    if active_workspace.contains(command.upper()):
+        result = active_workspace.get(command.upper())
 
+    # TODO: Add validation
+    # This command is currently unstable
+    # and will lead to inconsistent behavior or crashes
     elif command.startswith("set "):
         # Split by ' ' delim
         parts = command.split()
@@ -181,7 +184,7 @@ def do_op_command(command:str, active_workspace: Workspace) -> tuple[Workspace, 
             raise ValueError("Usage: set NAME ROW COL VALUE")
 
         # Set name, row, col, value
-        name = parts[1]
+        name = parts[1].upper()
         row = int(parts[2]) - 1
         col = int(parts[3]) - 1
         value = parse_value(parts[4])
@@ -354,7 +357,7 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     elif command.startswith("clear ") or command.startswith("clr "):
         name = command.split(maxsplit=1)[1]
         try:
-            active_workspace.delete_matrix(name)
+            active_workspace.delete_matrix(name.upper())
         except ValueError as error:
             print(error)
         return active_workspace
