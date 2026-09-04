@@ -10,12 +10,29 @@
 
 --- PRIORITY 2 ---
 
+- add up arrow to recover last command
+
+- add clear screen command
+    - syntax tbd
+
+- add nickname/nn function to label matrix
+    - implement op by name with A @ {nickname}
+
 - cli consistent whitespace when printing
     - e.g. assignment has 0 lines, addition has 1 line
 
 - matrix str improve spacing for lopsided column sizes
+- matrix str add compact version
+    - no whitespace, could add on cli layer
 
 --- LOW PRIORITY ---
+
+- cli implement identity matrix
+    - possible syntax: identity 3 | id 3
+
+- autocomplete load func
+
+- quick-matrix parse leading 0s as '0 '
 
 - add deep fraction support
     - which levels of abstraction?
@@ -28,6 +45,17 @@
 	    - --no-autoload / -nal
 	    - --no-autosave / -nas
 	    - --new (same as nal?)
+
+--- DEBUG ---
+
+- unhandled errors in quick matrix parse
+
+- prevent untitled.json from being last workspace
+    - done?
+
+- -1 * <matrixname> errors out if matrix has polynomial cell values
+    - test more
+
 
 --- COMPLETE ---
 
@@ -54,14 +82,6 @@ x cli save load
 
 x add symbolic logic
     x independant polynomial engine in own file
-
---- DEBUG ---
-
-- prevent untitled.json from being last workspace
-
-- add validation to various user inputs
-    - savename loadname setname
-    - matrix variable name A B C
 
 --- LATER --- 
 
