@@ -163,6 +163,9 @@ def confirm(prompt: str) -> bool:
     response = input(f"{prompt} [y/N] ").strip().lower()
     return response in ("y", "yes")
 
+def clear_screen():
+    print("\033[2J\033[H", end="")
+
 # Handles storage, operation, or recall
 # Gets 'result' and then stores or prints outside chain
 # Called by do_command as a helper
@@ -215,6 +218,10 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
     # Handle named commands
     if command == "name":
         print(active_workspace.name)
+        return active_workspace
+
+    elif command in ("cls", "clearscreen", "clear screen"):
+        clear_screen()
         return active_workspace
 
     elif command == "save":
