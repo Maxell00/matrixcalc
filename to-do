@@ -10,6 +10,9 @@
 
 --- PRIORITY 2 ---
 
+- refactor command parsing
+    - separate file?
+
 - add up arrow to recover last command
 
 - add clear screen command
