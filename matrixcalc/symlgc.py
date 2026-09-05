@@ -105,6 +105,7 @@ class Monomial:
     def total_degree(self) -> int:
         return sum(self._exponents.values())
 
+
 class Polynomial:
     """Stores a normalized mapping of Monomials to numeric coefficients.
 
