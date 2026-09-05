@@ -6,7 +6,6 @@
 - make sure all funcs raise errors where necessary
 - cli error handling everywhere
 
-- cli delete workspace command
 
 --- PRIORITY 2 ---
 
@@ -14,9 +13,6 @@
     - separate file?
 
 - add up arrow to recover last command
-
-- add clear screen command
-    - syntax tbd
 
 - add nickname/nn function to label matrix
     - implement op by name with A @ {nickname}
@@ -64,6 +60,8 @@
 
 x fix print spacing for 1+ char cells
 
+x cli delete workspace command
+x cli clear screen command
 x cli support set_cell with non int
 x cli add 'new ' command to create and rename in one step
 x cli ws should alphabetize filenames
