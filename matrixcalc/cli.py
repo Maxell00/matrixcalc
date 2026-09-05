@@ -296,6 +296,23 @@ def do_command(command: str, active_workspace: Workspace) -> Workspace:
 
         return active_workspace
 
+    elif command.startswith("del ") or command.startswith("delete "):
+        prefix = (
+            "delete "
+            if command.startswith("delete ")
+            else "del "
+        )
+        name = command[len(prefix):].strip()
+
+        try:
+            Workspace.delete_workspace_file(WORKSPACE_DIR, name)
+        except (ValueError, PermissionError) as e:
+            print(e)
+            return active_workspace
+
+        print(f"Workspace {name} deleted successfully.")
+        return active_workspace
+
     # Show loadable workspaces
     elif command in ("workspaces", "ws"):
         names = sorted(

@@ -113,7 +113,7 @@ class Workspace:
 
     @classmethod
     def load(cls, directory: Path, name: str) -> Workspace:
-        path = Path(directory) / f"{name}.json"
+        path = directory / f"{name}.json"
         
         try:
             with path.open("r", encoding="utf-8") as file:
@@ -128,4 +128,15 @@ class Workspace:
         workspace.dirty = False
 
         return workspace
+
+    @classmethod
+    def delete_workspace_file(cls, directory: Path, name: str) -> None:
+        path = directory / f"{name}.json"
+        
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            raise ValueError(f"Workspace '{name}' does not exist")
+        except PermissionError:
+            raise PermissionError(f"Permission denied deleting workspace '{name}'")
 
