@@ -30,8 +30,6 @@ OPERATIONS: dict[str, Operation] = {
     "/": lambda a, b: a / b,
 }
 
-# Methods
-
 def parse_value(text: str) -> MatrixCellValue:
     try:
         return parse_number(text)
