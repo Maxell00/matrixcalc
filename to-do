@@ -6,11 +6,16 @@
 - make sure all funcs raise errors where necessary
 - cli error handling everywhere
 
+- refactor command parsing
+    - separate file?
 
 --- PRIORITY 2 ---
 
-- refactor command parsing
-    - separate file?
+- change clear/delete dichotomy to be more clear
+    - move to deletematrix/delm/delete matrix
+	      deleteworkspace/delws/delete workspace
+    - clear becomes only clearscreen
+- consider changing listall/la to something more descriptive
 
 - add up arrow to recover last command
 
