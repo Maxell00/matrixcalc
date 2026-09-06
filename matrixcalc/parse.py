@@ -5,11 +5,30 @@ from dataclasses import dataclass
 
 # TODO: Make Operand + Operator data class
 # handle = case
-# make MatrixReference class
 # define ParseError
 
 VALID_OPERATORS = {"+", "-", "*", "@", "/"}
-NAMED_COMMANDS = {} #FINISH THIS!!
+NAMED_COMMANDS = {
+    "clearall",
+    "clr",
+    "clear",
+    "cls",
+    "clearscreen",
+    "del",
+    "delete",
+    "la",
+    "listall",
+    "ls",
+    "list",
+    "load",
+    "name",
+    "new",
+    "rename",
+    "save",
+    "saveas",
+    "workspaces",
+    "ws",
+}
 
 ASSIGNMENT_USAGE_MSG = ""
 OPERATION_USAGE_MSG = ""
@@ -27,6 +46,9 @@ RENAME_USAGE_MSG = ""
 SAVE_USAGE_MSG = ""
 SAVEAS_USAGE_MSG = ""
 WORKSPACES_USAGE_MSG = ""
+
+INVALID_COMMAND_MSG = ""
+INVALID_WS_NAME_MSG = ""
 
 # add rest of named command usage msgs
 
@@ -256,10 +278,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             try:
                 validate_workspace_name(workspace_name)
             except ValueError:
-                # TODO: Write this error!
-                # should specify invalid ws name
-                # can reuse error after written for other wsname cmds
-                raise ParseError("")
+                raise ParseError(INVALID_WS_NAME_MSG)
 
             return NamedCommand(
                 name="load",
@@ -289,9 +308,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             try:
                 validate_workspace_name(workspace_name)
             except ValueError:
-                # TODO: Write this error!
-                # reused -- use a constant
-                raise ParseError("")
+                raise ParseError(INVALID_WS_NAME_MSG)
             
             return NamedCommand(
                 name="new",
@@ -312,9 +329,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             try:
                 validate_workspace_name(workspace_name)
             except ValueError:
-                # TODO: Write this error!
-                # reused -- use a constant
-                raise ParseError("")
+                raise ParseError(INVALID_WS_NAME_MSG)
 
             return NamedCommand(
                 name="rename",
@@ -323,8 +338,26 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
 
         case "save":
             if len(arglist) > 1 and arglist[1] == "as":
-                # handle as case
-                pass
+                if len(arglist) > 3:
+                    raise ParseError(SAVEAS_USAGE_MSG)
+
+                if len(arglist) == 3:
+                    workspace_name = arglist[2]
+                    try:
+                        validate_workspace_name(workspace_name)
+                    except ValueError:
+                        raise ParseError(INVALID_WS_NAME_MSG)
+
+                    return NamedCommand(
+                        name="saveas",
+                        args=[workspace_name],
+                    )
+
+                return NamedCommand(
+                    name="saveas",
+                    args=[],
+                )
+                
 
             if len(arglist) != 1:
                 raise ParseError(SAVE_USAGE_MSG)
@@ -343,9 +376,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 try:
                     validate_workspace_name(workspace_name)
                 except ValueError:
-                    # TODO: Write this error!
-                    # reused -- use a constant
-                    raise ParseError("")
+                    raise ParseError(INVALID_WS_NAME_MSG)
 
                 return NamedCommand(
                     name="saveas",
@@ -353,14 +384,21 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 )
 
             return NamedCommand(
-                name="saveas"
-                args=[]
+                name="saveas",
+                args=[],
             )
 
         case "workspaces" | "ws":
-            pass
-            #TODO: FINISH THIS!
+            if len(arglist) != 1:
+                raise ParseError(WORKSPACES_USAGE_MSG)
 
+            return NamedCommand(
+                name="workspaces",
+                args=[],
+            )
+
+        case _:
+            raise ParseError(INVALID_COMMAND_MSG)
 
 
 def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
