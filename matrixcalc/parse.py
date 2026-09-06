@@ -14,7 +14,20 @@ NAMED_COMMANDS = {} #FINISH THIS!!
 ASSIGNMENT_USAGE_MSG = ""
 OPERATION_USAGE_MSG = ""
 
-DEL_USAGE_MSG = ""
+CLEAR_USAGE_MSG = ""
+CLEARALL_USAGE_MSG = ""
+CLEARSCREEN_USAGE_MSG = ""
+DELETE_USAGE_MSG = ""
+LIST_USAGE_MSG = ""
+LISTALL_USAGE_MSG = ""
+LOAD_USAGE_MSG = ""
+NAME_USAGE_MSG = ""
+NEW_USAGE_MSG = ""
+RENAME_USAGE_MSG = ""
+SAVE_USAGE_MSG = ""
+SAVEAS_USAGE_MSG = ""
+WORKSPACES_USAGE_MSG = ""
+
 # add rest of named command usage msgs
 
 
@@ -73,6 +86,11 @@ def varlist_to_monomial(varlist: list[str]) -> Monomial:
 
     return Monomial(result_data)
 
+def validate_workspace_name(name: str) -> None:
+    #TODO: Copy over WORKSPACE NAME RE and add check
+    pass
+
+# Parse Functions
 def parse_number(text: str) -> int | float:
     try:
         value = ast.literal_eval(text)
@@ -137,7 +155,213 @@ def parse_quick_matrix(quick_matrix_entry: list[str]) -> Matrix:
 
 # Functions to parse command by type
 def parse_named_command(arglist: list[str]) -> NamedCommand:
-    pass
+    command = arglist[0]
+
+    match command:
+        case "clearall":
+            if len(arglist) != 1:
+                raise ParseError(CLEARALL_USAGE_MSG)
+            return NamedCommand(
+                name="clearall",
+                args=[],
+            )
+
+        case "clr" | "clear":
+            if len(arglist) == 1:
+                raise ParseError(CLR_USAGE_MSG)
+
+            if arglist[1] == "screen":
+                if len(arglist) != 2:
+                    raise ParseError(CLEARSCREEN_USAGE_MSG)
+                return NamedCommand(
+                    name="clearscreen",
+                    args=[],
+                )
+
+            if arglist[1] == "all":
+                if len(arglist) != 2:
+                    raise ParseError(CLEARALL_USAGE_MSG)
+                return NamedCommand(
+                    name="clearall",
+                    args=[],
+                )
+
+            try:
+                parsed_args = [MatrixReference(arg) for arg in arglist[1:]]
+            except ValueError:
+                raise ParseError(CLR_USAGE_MSG)
+
+            return NamedCommand(
+                name="clear",
+                args=parsed_args,
+            )
+
+        case "cls" | "clearscreen":
+            if len(arglist) != 1:
+                raise ParseError(CLEARSCREEN_USAGE_MSG)
+
+            return NamedCommand(
+                name="clearscreen",
+                args=[],
+            )
+
+        case "del" | "delete":
+            if len(arglist) == 1:
+                raise ParseError(DELETE_USAGE_MSG)
+
+            parsed_args = arglist[1:]
+            try:
+                for arg in parsed_args:
+                    #TODO: Write this function!
+                    validate_workspace_name(arg)
+            except ValueError:
+                raise ParseError(DELETE_USAGE_MSG)
+
+            return NamedCommand(
+                name="delete",
+                args=parsed_args,
+            )
+
+        case "la" | "listall":
+            if len(arglist) != 1:
+                raise ParseError(LISTALL_USAGE_MSG)
+
+            return NamedCommand(
+                name="listall",
+                args=[],
+            )
+
+        case "ls" | "list":
+            if len(arglist) > 1 and arglist[1] == "all":
+                if len(arglist) > 2:
+                    raise ParseError(LISTALL_USAGE_MSG)
+                return NamedCommand(
+                    name="listall",
+                    args=[],
+                )
+
+            if len(arglist) != 1:
+                raise ParseError(LIST_USAGE_MSG)
+
+            return NamedCommand(
+                name="list",
+                args=[],
+            )
+
+        case "load":
+            if len(arglist) != 2:
+                raise ParseError(LOAD_USAGE_MSG)
+
+            workspace_name = arglist[1]
+            try:
+                validate_workspace_name(workspace_name)
+            except ValueError:
+                # TODO: Write this error!
+                # should specify invalid ws name
+                # can reuse error after written for other wsname cmds
+                raise ParseError("")
+
+            return NamedCommand(
+                name="load",
+                args=[workspace_name],
+            )
+
+        case "name":
+            if len(arglist) != 1:
+                raise ParseError(NAME_USAGE_MSG)
+
+            return NamedCommand(
+                name="name",
+                args=[],
+            )
+
+        case "new":
+            if len(arglist) > 2:
+                raise ParseError(NEW_USAGE_MSG)
+
+            if len(arglist) == 1:
+                return NamedCommand(
+                    name="new",
+                    args=[],
+                )
+
+            workspace_name = arglist[1]
+            try:
+                validate_workspace_name(workspace_name)
+            except ValueError:
+                # TODO: Write this error!
+                # reused -- use a constant
+                raise ParseError("")
+            
+            return NamedCommand(
+                name="new",
+                args=[workspace_name],
+            )
+
+        case "rename":
+            if len(arglist) > 2:
+                raise ParseError(RENAME_USAGE_MSG)
+
+            if len(arglist) == 1:
+                return NamedCommand(
+                    name="rename",
+                    args=[],
+                )
+
+            workspace_name = arglist[1]
+            try:
+                validate_workspace_name(workspace_name)
+            except ValueError:
+                # TODO: Write this error!
+                # reused -- use a constant
+                raise ParseError("")
+
+            return NamedCommand(
+                name="rename",
+                args=[workspace_name],
+            )
+
+        case "save":
+            if len(arglist) > 1 and arglist[1] == "as":
+                # handle as case
+                pass
+
+            if len(arglist) != 1:
+                raise ParseError(SAVE_USAGE_MSG)
+
+            return NamedCommand(
+                name="save",
+                args=[],
+            )
+
+        case "saveas":
+            if len(arglist) > 2:
+                raise ParseError(SAVEAS_USAGE_MSG)
+
+            if len(arglist) == 2:
+                workspace_name = arglist[1]
+                try:
+                    validate_workspace_name(workspace_name)
+                except ValueError:
+                    # TODO: Write this error!
+                    # reused -- use a constant
+                    raise ParseError("")
+
+                return NamedCommand(
+                    name="saveas",
+                    args=[workspace_name],
+                )
+
+            return NamedCommand(
+                name="saveas"
+                args=[]
+            )
+
+        case "workspaces" | "ws":
+            pass
+            #TODO: FINISH THIS!
+
+
 
 def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
     if arglist[1] != "=" or arglist.count("=") != 1:
