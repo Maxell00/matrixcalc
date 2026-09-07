@@ -1,11 +1,12 @@
+from __future__ import annotations
+import ast
 import re
 from matrixcalc.matrix import Matrix, MatrixCellValue
 from matrixcalc.symlgc import Monomial, Polynomial
 from dataclasses import dataclass
+from collections.abc import Sequence
 
-# TODO: Make Operand + Operator data class
 # handle = case
-# define ParseError
 
 VALID_OPERATORS = {"+", "-", "*", "@", "/"}
 NAMED_COMMANDS = {
@@ -49,9 +50,14 @@ WORKSPACES_USAGE_MSG = ""
 
 INVALID_COMMAND_MSG = ""
 INVALID_WS_NAME_MSG = ""
+INVALID_STORAGE_MSG = ""
 
-# add rest of named command usage msgs
+TERM_BODY_RE = r"(?:\d+)?(?:[a-z]\d*)+"
+TERM_RE = rf"[+-]?{TERM_BODY_RE}"
+POLYNOMIAL_RE = rf"{TERM_RE}(?:[+-]{TERM_BODY_RE})*"
 
+class ParseError(ValueError):
+    pass
 
 @dataclass
 class Command:
@@ -61,14 +67,14 @@ class Command:
 @dataclass
 class NamedCommand(Command):
     name: str
-    args: list[object]
+    args: Sequence[str | MatrixReference]
 
 
 @dataclass
 class OperationCommand(Command):
     operands: list[Operand]
     operators: list[str]
-    destination: MatrixReference | None
+    destination: list[MatrixReference] | None
 
     def __post_init__(self) -> None:
         if len(self.operands) != len(self.operators) + 1:
@@ -87,11 +93,13 @@ class MatrixReference:
     def __init__(self, name: str) -> None:
         if len(name) != 1 or not name.isascii() or not name.isalpha():
             raise ValueError("Matrix reference must be a single ASCII character")
-        self._name = name.upper()
+        self._name: str = name.upper()
 
     @property
     def name(self) -> str:
         return self._name
+
+Operand = Polynomial | MatrixReference | int | float
 
 # Helper functions
 def varlist_to_monomial(varlist: list[str]) -> Monomial:
@@ -115,24 +123,29 @@ def validate_workspace_name(name: str) -> None:
 # Parse Functions
 def parse_number(text: str) -> int | float:
     try:
-        value = ast.literal_eval(text)
+        value = ast.literal_eval(text) # pyright: ignore[reportAny]
     except (ValueError, SyntaxError):
         raise ValueError(f"Invalid number: {text}")
 
-    if isinstance(value, (int, float)):
-        return value
-
-    raise ValueError(f"Invalid number: {text}")
+    if not isinstance(value, (int, float)):
+        raise ValueError(f"Invalid number: {text}")
+    
+    return value
 
 def parse_polynomial(text: str) -> Polynomial:
     result_data: dict[Monomial, int | float] = {}
 
-    # Split into terms in the form "-2x2yz"
-    terms = re.findall(r"[+-]?(?:\d+)?(?:[a-z]\d*)+", text)
+    # Ensure valid input string
+    if not re.fullmatch(POLYNOMIAL_RE, text):
+        raise ValueError("Invalid Polynomial")
 
-    # Ensure first term has an explicit sign
+    # Split into terms in the form "-2x2yz"
+    terms: list[str] = re.findall(TERM_RE, text)
+
+    # Normalize explicit sign for first term
     if terms[0][0] not in "+-":
         terms[0] = "+" + terms[0]
+
     for term in terms:
         is_negative = term[0] == "-"
         term = term[1:]
@@ -157,17 +170,25 @@ def parse_polynomial(text: str) -> Polynomial:
 
     return Polynomial(result_data)
 
+def parse_operand(operand: str) -> MatrixCellValue | MatrixReference:
+    try:
+        return parse_value(operand)
+    except ValueError:
+        return MatrixReference(operand)
+
 def parse_value(text: str) -> MatrixCellValue:
     try:
         return parse_number(text)
     except ValueError:
         return parse_polynomial(text)
 
-def parse_quick_matrix(quick_matrix_entry: list[str]) -> Matrix:
-    # Takes 'quick matrix input' and returns Matrix object
-    # All values must be numbers or Polynomials
-    # TODO: Add validation, raise more errors!
-    # TODO: Move this comment to docstring?
+def parse_quick_matrix(quick_matrix_entry: str) -> Matrix:
+    """Parse string with quick matrix syntax into a Matrix object.
+
+    Rows are separated by semicolons; entries within a row are
+    separated by whitespace. Each entry must be a valid number or
+    polynomial.
+    """
     data = [
         [parse_value(value) for value in row]
         for row in quick_matrix_entry.split(";")
@@ -190,7 +211,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
 
         case "clr" | "clear":
             if len(arglist) == 1:
-                raise ParseError(CLR_USAGE_MSG)
+                raise ParseError(CLEAR_USAGE_MSG)
 
             if arglist[1] == "screen":
                 if len(arglist) != 2:
@@ -211,7 +232,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             try:
                 parsed_args = [MatrixReference(arg) for arg in arglist[1:]]
             except ValueError:
-                raise ParseError(CLR_USAGE_MSG)
+                raise ParseError(CLEAR_USAGE_MSG)
 
             return NamedCommand(
                 name="clear",
@@ -410,9 +431,11 @@ def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
     except ValueError:
         raise ParseError(ASSIGNMENT_USAGE_MSG)
 
+    quick_matrix_string = " ".join(arglist[2:])
+
     try:
-        value = parse_quick_matrix(arglist[2:0])
-    except: #FIX THIS!! WHICH EXCEPTIONS TO CATCH??
+        value = parse_quick_matrix(quick_matrix_string)
+    except ValueError:
         raise ParseError(ASSIGNMENT_USAGE_MSG)
 
     return AssignmentCommand(
@@ -422,7 +445,49 @@ def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
 
 
 def parse_operation_command(arglist: list[str]) -> OperationCommand:
-    pass
+    destination = None
+    if ">>" in arglist:
+        if arglist.count(">>") > 1:
+            raise ParseError(INVALID_STORAGE_MSG)
+
+        split_index = arglist.index(">>")
+
+        storage_vars = arglist[split_index + 1:]
+        arglist = arglist[:split_index]
+
+        if not storage_vars:
+            raise ParseError(INVALID_STORAGE_MSG)
+
+        try:
+            destination = [
+                MatrixReference(var)
+                for var in storage_vars
+            ]
+        except ValueError:
+            raise ParseError(INVALID_STORAGE_MSG)
+
+    if len(arglist) % 2 == 0:
+        raise ParseError(OPERATION_USAGE_MSG)
+
+    operands = arglist[::2]
+    operators = arglist[1::2]
+
+    if not all(op in VALID_OPERATORS for op in operators):
+        raise ParseError(OPERATION_USAGE_MSG)
+
+    try:
+        operands = [
+            parse_operand(op)
+            for op in operands
+        ]
+    except ValueError:
+        raise ParseError(OPERATION_USAGE_MSG)
+
+    return OperationCommand(
+        operands=operands,
+        operators=operators,
+        destination=destination,
+    )
 
 # Primary function
 def parse(line: str) -> list[Command]:
