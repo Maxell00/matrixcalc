@@ -1,6 +1,9 @@
 --- PRIORITY 1 ---
 
 ! cli help command
+    - include workspace name spec:
+	"Workspace name must be 1–64 characters and contain only " +
+        "letters, numbers, '-' or '_'; it must start with a letter or number."
 
 - workspace and symlgc runtime type enforcement
 - make sure all funcs raise errors where necessary
