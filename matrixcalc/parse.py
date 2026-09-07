@@ -27,34 +27,43 @@ NAMED_COMMANDS = {
     "rename",
     "save",
     "saveas",
+    "set",
     "workspaces",
     "ws",
 }
 
-ASSIGNMENT_USAGE_MSG = ""
-OPERATION_USAGE_MSG = ""
+ASSIGNMENT_USAGE_MSG = "Usage: MATRIX = DATA"
+OPERATION_USAGE_MSG = "Usage: MATRIX [OPERATOR MATRIX]... [>> MATRIX]"
 
-CLEAR_USAGE_MSG = ""
-CLEARALL_USAGE_MSG = ""
-CLEARSCREEN_USAGE_MSG = ""
-DELETE_USAGE_MSG = ""
-LIST_USAGE_MSG = ""
-LISTALL_USAGE_MSG = ""
-LOAD_USAGE_MSG = ""
-NAME_USAGE_MSG = ""
-NEW_USAGE_MSG = ""
-RENAME_USAGE_MSG = ""
-SAVE_USAGE_MSG = ""
-SAVEAS_USAGE_MSG = ""
-WORKSPACES_USAGE_MSG = ""
+CLEAR_USAGE_MSG = "Usage: clear | clr MATRIX [MATRIX]..."
+CLEARALL_USAGE_MSG = "Usage: clearall | clear all"
+CLEARSCREEN_USAGE_MSG = "Usage: cls | clearscreen | clear screen"
+DELETE_USAGE_MSG = "Usage: del | delete FILENAME [FILENAME]..."
+LIST_USAGE_MSG = "Usage: ls | list"
+LISTALL_USAGE_MSG = "Usage: la | listall | list all"
+LOAD_USAGE_MSG = "Usage: load FILENAME"
+NAME_USAGE_MSG = "Usage: name"
+NEW_USAGE_MSG = "Usage: new [NAME]"
+RENAME_USAGE_MSG = "Usage: rename [NAME]"
+SAVE_USAGE_MSG = "Usage: save [FILENAME]"
+SAVEAS_USAGE_MSG = "Usage: saveas | save as [FILENAME]"
+SET_USAGE_MSG = "Usage: set MATRIX ROW COL VALUE"
+WORKSPACES_USAGE_MSG = "Usage: ws | workspaces"
 
-INVALID_COMMAND_MSG = ""
-INVALID_WS_NAME_MSG = ""
-INVALID_STORAGE_MSG = ""
+INVALID_COMMAND_MSG = "Invalid command"
+INVALID_WS_NAME_MSG = "Invalid workspace name: "
+INVALID_STORAGE_MSG = "Invalid storage destination"
+
+WS_NAME_SPECIFICATION_MSG = (
+    "Workspace name must be 1–64 characters and contain only "
+    "letters, numbers, '-' or '_'; it must start with a letter or number."
+)
 
 TERM_BODY_RE = r"(?:\d+)?(?:[a-z]\d*)+"
 TERM_RE = rf"[+-]?{TERM_BODY_RE}"
 POLYNOMIAL_RE = rf"{TERM_RE}(?:[+-]{TERM_BODY_RE})*"
+
+WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 class ParseError(ValueError):
     pass
@@ -67,7 +76,7 @@ class Command:
 @dataclass
 class NamedCommand(Command):
     name: str
-    args: Sequence[str | MatrixReference]
+    args: Sequence[str | MatrixReference | MatrixCellValue]
 
 
 @dataclass
@@ -99,7 +108,7 @@ class MatrixReference:
     def name(self) -> str:
         return self._name
 
-Operand = Polynomial | MatrixReference | int | float
+Operand = MatrixCellValue | MatrixReference
 
 # Helper functions
 def varlist_to_monomial(varlist: list[str]) -> Monomial:
@@ -116,11 +125,18 @@ def varlist_to_monomial(varlist: list[str]) -> Monomial:
 
     return Monomial(result_data)
 
-def validate_workspace_name(name: str) -> None:
-    #TODO: Copy over WORKSPACE NAME RE and add check
-    pass
+# Validation Helper Functions
+def validate_workspace_name(workspace_name: str) -> None:
+    if not WORKSPACE_NAME_RE.fullmatch(workspace_name):
+        raise ValueError(WS_NAME_SPECIFICATION_MSG)
 
-# Parse Functions
+def validate_workspace_name_for_parser(workspace_name: str) -> None:
+    try: 
+        validate_workspace_name(workspace_name)
+    except ValueError:
+        raise ParseError(f"{INVALID_WS_NAME_MSG}{workspace_name}")
+
+# Parser Helper Functions
 def parse_number(text: str) -> int | float:
     try:
         value = ast.literal_eval(text) # pyright: ignore[reportAny]
@@ -253,12 +269,8 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 raise ParseError(DELETE_USAGE_MSG)
 
             parsed_args = arglist[1:]
-            try:
-                for arg in parsed_args:
-                    #TODO: Write this function!
-                    validate_workspace_name(arg)
-            except ValueError:
-                raise ParseError(DELETE_USAGE_MSG)
+            for arg in parsed_args:
+                validate_workspace_name_for_parser(arg)
 
             return NamedCommand(
                 name="delete",
@@ -296,10 +308,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 raise ParseError(LOAD_USAGE_MSG)
 
             workspace_name = arglist[1]
-            try:
-                validate_workspace_name(workspace_name)
-            except ValueError:
-                raise ParseError(INVALID_WS_NAME_MSG)
+            validate_workspace_name_for_parser(workspace_name)
 
             return NamedCommand(
                 name="load",
@@ -326,10 +335,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 )
 
             workspace_name = arglist[1]
-            try:
-                validate_workspace_name(workspace_name)
-            except ValueError:
-                raise ParseError(INVALID_WS_NAME_MSG)
+            validate_workspace_name_for_parser(workspace_name)
             
             return NamedCommand(
                 name="new",
@@ -347,10 +353,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
                 )
 
             workspace_name = arglist[1]
-            try:
-                validate_workspace_name(workspace_name)
-            except ValueError:
-                raise ParseError(INVALID_WS_NAME_MSG)
+            validate_workspace_name_for_parser(workspace_name)
 
             return NamedCommand(
                 name="rename",
@@ -364,10 +367,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
 
                 if len(arglist) == 3:
                     workspace_name = arglist[2]
-                    try:
-                        validate_workspace_name(workspace_name)
-                    except ValueError:
-                        raise ParseError(INVALID_WS_NAME_MSG)
+                    validate_workspace_name_for_parser(workspace_name)
 
                     return NamedCommand(
                         name="saveas",
@@ -394,10 +394,7 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
 
             if len(arglist) == 2:
                 workspace_name = arglist[1]
-                try:
-                    validate_workspace_name(workspace_name)
-                except ValueError:
-                    raise ParseError(INVALID_WS_NAME_MSG)
+                validate_workspace_name_for_parser(workspace_name)
 
                 return NamedCommand(
                     name="saveas",
@@ -407,6 +404,26 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             return NamedCommand(
                 name="saveas",
                 args=[],
+            )
+
+        case "set":
+            if len(arglist) != 5:
+                raise ParseError(SET_USAGE_MSG)
+
+            try:
+                matrix = MatrixReference(arglist[1])
+                row = parse_number(arglist[2])
+                col = parse_number(arglist[3])
+                value = parse_value(arglist[4])
+            except ValueError:
+                raise ParseError(SET_USAGE_MSG)
+
+            if not isinstance(row, int) or not isinstance(col, int):
+                raise ParseError(SET_USAGE_MSG)
+
+            return NamedCommand(
+                name="set",
+                args=[matrix, row, col, value],
             )
 
         case "workspaces" | "ws":
@@ -420,7 +437,6 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
 
         case _:
             raise ParseError(INVALID_COMMAND_MSG)
-
 
 def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
     if arglist[1] != "=" or arglist.count("=") != 1:
@@ -442,7 +458,6 @@ def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
         target=target,
         value=value,
     )
-
 
 def parse_operation_command(arglist: list[str]) -> OperationCommand:
     destination = None
@@ -489,8 +504,7 @@ def parse_operation_command(arglist: list[str]) -> OperationCommand:
         destination=destination,
     )
 
-# Primary function
-def parse(line: str) -> list[Command]:
+def parse_command(line: str) -> Command:
     arglist = line.split()
 
     if not arglist:
@@ -502,10 +516,27 @@ def parse(line: str) -> list[Command]:
     if "=" in arglist:
         return parse_assignment_command(arglist)
 
-    else:
+    if any(arg in VALID_OPERATORS for arg in arglist):
         return parse_operation_command(arglist)
 
+    raise ParseError(INVALID_COMMAND_MSG)
 
+# Primary function
+def parse(line: str) -> list[Command]:
+    # Rejects empty strings and whitespace strings
+    if not line.strip():
+        raise ParseError(INVALID_COMMAND_MSG)
+    
+    commands = [
+        command.strip()
+        for command in line.split("|")
+    ]
 
+    parsed_commands = [
+        parse_command(command)
+        for command in commands
+    ]
+
+    return parsed_commands
 
 
