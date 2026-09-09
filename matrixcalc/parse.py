@@ -3,10 +3,9 @@ import ast
 import re
 from matrixcalc.matrix import Matrix, MatrixCellValue
 from matrixcalc.symlgc import Monomial, Polynomial
+from matrixcalc.workspace import validate_workspace_name
 from dataclasses import dataclass
 from collections.abc import Sequence
-
-# handle = case
 
 VALID_OPERATORS = {"+", "-", "*", "@", "/"}
 NAMED_COMMANDS = {
@@ -54,16 +53,9 @@ INVALID_COMMAND_MSG = "Invalid command"
 INVALID_WS_NAME_MSG = "Invalid workspace name: "
 INVALID_STORAGE_MSG = "Invalid storage destination"
 
-WS_NAME_SPECIFICATION_MSG = (
-    "Workspace name must be 1–64 characters and contain only "
-    "letters, numbers, '-' or '_'; it must start with a letter or number."
-)
-
 TERM_BODY_RE = r"(?:\d+)?(?:[a-z]\d*)+"
 TERM_RE = rf"[+-]?{TERM_BODY_RE}"
 POLYNOMIAL_RE = rf"{TERM_RE}(?:[+-]{TERM_BODY_RE})*"
-
-WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
 
 class ParseError(ValueError):
     pass
@@ -126,10 +118,6 @@ def varlist_to_monomial(varlist: list[str]) -> Monomial:
     return Monomial(result_data)
 
 # Validation Helper Functions
-def validate_workspace_name(workspace_name: str) -> None:
-    if not WORKSPACE_NAME_RE.fullmatch(workspace_name):
-        raise ValueError(WS_NAME_SPECIFICATION_MSG)
-
 def validate_workspace_name_for_parser(workspace_name: str) -> None:
     try: 
         validate_workspace_name(workspace_name)
@@ -439,6 +427,9 @@ def parse_named_command(arglist: list[str]) -> NamedCommand:
             raise ParseError(INVALID_COMMAND_MSG)
 
 def parse_assignment_command(arglist: list[str]) -> AssignmentCommand:
+    if len(arglist) < 3:
+        raise ParseError(ASSIGNMENT_USAGE_MSG)
+
     if arglist[1] != "=" or arglist.count("=") != 1:
         raise ParseError(ASSIGNMENT_USAGE_MSG)
 
@@ -518,6 +509,15 @@ def parse_command(line: str) -> Command:
 
     if any(arg in VALID_OPERATORS for arg in arglist):
         return parse_operation_command(arglist)
+
+    # Bare MatrixReference recall, e.g. 'A'
+    if len(arglist) == 1 and len(arglist[1]) == 1:
+        try:
+            _ = MatrixReference(arglist[0])
+        except ValueError:
+            pass
+        else:
+            return parse_operation_command(arglist)
 
     raise ParseError(INVALID_COMMAND_MSG)
 

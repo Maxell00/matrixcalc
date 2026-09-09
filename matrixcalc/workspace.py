@@ -12,13 +12,14 @@ WorkspaceData = dict[str, MatrixData]
 
 # Constants
 WORKSPACE_NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$")
+WS_NAME_SPECIFICATION_MSG = (
+    "Workspace name must be 1–64 characters and contain only "
+    "letters, numbers, '-' or '_'; it must start with a letter or number."
+)
 
 def validate_workspace_name(workspace_name: str) -> None:
     if not WORKSPACE_NAME_RE.fullmatch(workspace_name):
-        raise ValueError(
-            "Workspace name must be 1–64 characters and contain only " +
-            "letters, numbers, '-' or '_'; it must start with a letter or number."
-        )
+        raise ValueError(WS_NAME_SPECIFICATION_MSG)
 
 def validate_matrix_name(matrix_name: str) -> str:
     if len(matrix_name) != 1:
