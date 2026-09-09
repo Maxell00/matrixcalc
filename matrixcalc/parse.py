@@ -66,6 +66,12 @@ class Command:
 
 
 @dataclass
+class AssignmentCommand(Command):
+    target: MatrixReference
+    value: Matrix
+
+
+@dataclass
 class NamedCommand(Command):
     name: str
     args: Sequence[str | MatrixReference | MatrixCellValue]
@@ -82,12 +88,6 @@ class OperationCommand(Command):
             raise ValueError(
                 "Operation command must have one more operand than operator"
             )
-
-
-@dataclass
-class AssignmentCommand(Command):
-    target: MatrixReference
-    value: Matrix
 
 
 class MatrixReference:

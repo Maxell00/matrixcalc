@@ -39,6 +39,12 @@ class Workspace:
         self._variables = {}
         self.dirty = False
 
+    def __contains__(self, name: str) -> bool:
+        return name in self._variables
+
+    def __getitem__(self, name: str) -> Matrix:
+        return self._variables[name]
+
     def rename(self, workspace_name: str) -> None:
         validate_workspace_name(workspace_name)
         self.name = workspace_name
@@ -61,9 +67,6 @@ class Workspace:
         # Runtime type validation happens inside matrix set value func
         self._variables[name][index] = value
         self.dirty = True
-
-    def get(self, name: str) -> Matrix:
-        return self._variables[name]
     
     def delete_matrix(self, matrix_name: str) -> None:
         if matrix_name not in self._variables:
@@ -71,9 +74,6 @@ class Workspace:
 
         del self._variables[matrix_name]
         self.dirty = True
-
-    def contains(self, name: str) -> bool:
-        return name in self._variables
 
     def save(
             self,
