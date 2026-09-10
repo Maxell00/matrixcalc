@@ -3,6 +3,7 @@ from matrixcalc.matrix import Matrix, MatrixCellValue
 from matrixcalc.workspace import Workspace
 from matrixcalc.symlgc import Monomial, Polynomial
 from matrixcalc.parse import parse, AssignmentCommand, NamedCommand, OperationCommand, Command, MatrixReference
+from matrixcalc.workspace import validate_workspace_name, Workspace
 
 # TODO: Double check: are these necessary?
 from collections.abc import Callable
@@ -28,6 +29,8 @@ WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
 LAST_WORKSPACE = WORKSPACE_DIR / ".last_workspace"
 
+MATRIX_NOT_FOUND_MSG = "Matrix not found: "
+
 # Helper functions
 
 def update_last_workspace(workspace: Workspace) -> None:
@@ -45,7 +48,7 @@ def resolve_matrix_reference(
         raise ValueError(f"No matrix '{matrix_reference.name}' in workspace")
     return active_workspace[matrix_reference.name]
 
-# NOTE: Func not needed for delete(), it is slated for deletion
+# NOTE: Func not needed for delete(), slated for deletion
 # def ws_file_exists(workspace_dir: Path, workspace_name: str) -> bool:
 #     return (workspace_dir / f"{workspace_name}.json".is_file()
 
@@ -99,7 +102,7 @@ def load(active_workspace: Workspace, workspace_name: str) -> Workspace
     return active_workspace
 
 def name(active_workspace: Workspace) -> None:
-    print(active_workspace.name)
+    print(f"Current workspace name: {active_workspace.name}")
     return
 
 def new(active_workspace: Workspace, name: str | None) -> Workspace:
@@ -110,6 +113,50 @@ def new(active_workspace: Workspace, name: str | None) -> Workspace:
             return Workspace(name)
     else:
         return active_workspace
+
+def rename(active_workspace: Workspace, name: str | None) -> Workspace:
+    if name is None:
+        name = input("New name for current workspace: ").strip()
+    try:
+        validate_workspace_name(name)
+    except ValueError as error:
+        print error
+        return active_workspace
+
+    # No validation necessary if receiving str name as argument
+    active_workspace.rename(name)
+    return active_workspace
+
+def save(active_workspace: Workspace) -> Workspace:
+    active_workspace.save()
+    return active_workspace
+
+def saveas(active_workspace: Workspace, name: str) -> Workspace:
+    active_workspace.save_as(name)
+    return active_workspace
+
+def set(
+    active_workspace: Workspace,
+    matrix_ref: MatrixReference,
+    row: int,
+    col: int,
+    value: MatrixCellValue,
+) -> Workspace:
+    if matrix_ref.name not in active_workspace:
+        print(f"{MATRIX_NOT_FOUND_MSG}{matrix_ref.name}")
+        return active_workspace
+
+    target_matrix = resolve_matrix_reference(active_workspace, matrix_ref)
+    target_matrix_rows, target_matrix_cols = target_matrix.shape
+    if row > target_matrix_rows or col > target_matrix_cols:
+        print(f"Cell ({row}, {col}) out of range")
+    active_workspace.set_cell(matrix_ref.name, (row, col), value)
+    print(active_workspace.get(matrix_ref.name))
+
+    return active_workspace
+
+
+# TODO: FINISH THESE NAMEDCOMMAND HELPER FUNCS
 
 # Command execution functions
 def exec_assignmentcommand(active_workspace: Workspace, command: NamedCommand) -> Workspace:
