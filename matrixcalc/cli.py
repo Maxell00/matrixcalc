@@ -29,7 +29,7 @@ WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
 
 LAST_WORKSPACE = WORKSPACE_DIR / ".last_workspace"
 
-MATRIX_NOT_FOUND_MSG = "Matrix not found: "
+MATRIX_NOT_FOUND_MSG = "Matrix not found: " # NOTE: Unused!
 
 # Helper functions
 
@@ -88,11 +88,11 @@ def list(workspace: Workspace) -> None:
     for label in sorted(workspace.labels()):
         print(label)
 
-def load(active_workspace: Workspace, workspace_name: str) -> Workspace
+def load(active_workspace: Workspace, workspace_to_load: str) -> Workspace
     if not active_workspace.dirty or confirm("Discard changes and load?"):
-        print(f"Loading {workspace_name}.json... ", end="")
+        print(f"Loading {workspace_to_load}.json... ", end="")
         try:
-            active_workspace = Workspace.load(WORKSPACE_DIR, workspace_name)
+            active_workspace = Workspace.load(WORKSPACE_DIR, workspace_to_load)
         except ValueError as error:
             print("ERROR")
             print(error)
@@ -103,7 +103,6 @@ def load(active_workspace: Workspace, workspace_name: str) -> Workspace
 
 def name(active_workspace: Workspace) -> None:
     print(f"Current workspace name: {active_workspace.name}")
-    return
 
 def new(active_workspace: Workspace, name: str | None) -> Workspace:
     if not active_workspace.dirty or confirm("Discard unsaved changes and open new workspace?"):
@@ -114,49 +113,56 @@ def new(active_workspace: Workspace, name: str | None) -> Workspace:
     else:
         return active_workspace
 
-def rename(active_workspace: Workspace, name: str | None) -> Workspace:
+def rename(workspace: Workspace, name: str | None) -> Workspace:
     if name is None:
         name = input("New name for current workspace: ").strip()
     try:
         validate_workspace_name(name)
     except ValueError as error:
         print error
-        return active_workspace
+        return workspace
 
     # No validation necessary if receiving str name as argument
-    active_workspace.rename(name)
-    return active_workspace
+    workspace.rename(name)
+    return workspace
 
-def save(active_workspace: Workspace) -> Workspace:
-    active_workspace.save()
-    return active_workspace
+def save(workspace: Workspace) -> Workspace:
+    workspace.save()
+    return workspace
 
-def saveas(active_workspace: Workspace, name: str) -> Workspace:
-    active_workspace.save_as(name)
-    return active_workspace
+def saveas(workspace: Workspace, name: str) -> Workspace:
+    workspace.save_as(name)
+    return workspace
 
 def set(
-    active_workspace: Workspace,
+    workspace: Workspace,
     matrix_ref: MatrixReference,
     row: int,
     col: int,
     value: MatrixCellValue,
 ) -> Workspace:
-    if matrix_ref.name not in active_workspace:
-        print(f"{MATRIX_NOT_FOUND_MSG}{matrix_ref.name}")
-        return active_workspace
+    if matrix_ref.name not in workspace:
+        print(f"No matrix '{matrix_ref.name}' in workspace")
+        return workspace
 
-    target_matrix = resolve_matrix_reference(active_workspace, matrix_ref)
+    target_matrix = resolve_matrix_reference(workspace, matrix_ref)
     target_matrix_rows, target_matrix_cols = target_matrix.shape
     if row > target_matrix_rows or col > target_matrix_cols:
         print(f"Cell ({row}, {col}) out of range")
-    active_workspace.set_cell(matrix_ref.name, (row, col), value)
-    print(active_workspace.get(matrix_ref.name))
+    workspace.set_cell(matrix_ref.name, (row, col), value)
+    print(workspace.get(matrix_ref.name))
 
-    return active_workspace
+    return workspace
 
+def workspaces() -> None:
+    names = sorted(
+        path.stem
+        for path in WORKSPACE_DIR.iterdir()
+        if path.suffix == ".json"
+    )
 
-# TODO: FINISH THESE NAMEDCOMMAND HELPER FUNCS
+    for name in names:
+        print(name)
 
 # Command execution functions
 def exec_assignmentcommand(active_workspace: Workspace, command: NamedCommand) -> Workspace:
